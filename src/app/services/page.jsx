@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { motion } from "framer-motion"; 
+import { motion } from "framer-motion";
 import dynamic from "next/dynamic";
 import {
   Layers3,
@@ -10,376 +10,205 @@ import {
   Home,
   ArrowRight,
   CheckCircle2,
+  ExternalLink
 } from "lucide-react";
+
 const Lottie = dynamic(() => import("lottie-react"), {
-    ssr: false,
-    loading: () => (
-      <div className="flex h-full w-full items-center justify-center rounded-[1.5rem] bg-[linear-gradient(135deg,rgba(3,195,38,0.05),rgba(0,61,186,0.05),rgba(163,153,61,0.07))]" />
-    ),
-  });
-import servicesAnimation from "../../../public/lottie/services.json"; 
-// replace with your actual lottie file
+  ssr: false,
+  loading: () => (
+    <div className="flex h-full w-full items-center justify-center rounded-[2.5rem] bg-slate-50 animate-pulse" />
+  ),
+});
+
+import servicesAnimation from "../../../public/lottie/services.json";
 
 const serviceCards = [
   {
     title: "Installation",
-    description:
-      "Precision laying of hardwood, sheet vinyl, vinyl plank, carpet tiles, and commercial carpet systems.",
-    icon: <Layers3 size={28} strokeWidth={1.7} />,
-    tone: "green",
+    description: "Precision laying of hardwood, vinyl plank, and commercial carpet systems with structural focus.",
+    icon: <Layers3 size={24} />,
+    bgColor: "bg-[#E8F5E9]", 
+    accent: "text-green-700",
     points: ["Residential floors", "Commercial spaces", "Seamless finish"],
   },
   {
-    title: "Repair & Restoration",
-    description:
-      "Targeted repair work, replacement of damaged sections, edge correction, refinishing support, and surface recovery.",
-    icon: <Hammer size={28} strokeWidth={1.7} />,
-    tone: "blue",
-    points: ["Damage correction", "Section replacement", "Finish recovery"],
+    title: "Restoration",
+    description: "Targeted repair work, section replacement, and surface recovery for aging infrastructures.",
+    icon: <Hammer size={24} />,
+    bgColor: "bg-[#E3F2FD]", 
+    accent: "text-blue-700",
+    points: ["Damage correction", "Edge refinement", "Finish recovery"],
   },
   {
     title: "Maintenance",
-    description:
-      "Long-term care plans that protect performance, extend product life, and preserve the visual quality of your flooring.",
-    icon: <ShieldCheck size={28} strokeWidth={1.7} />,
-    tone: "yellow",
+    description: "Care plans that protect performance, extend lifecycle, and preserve visual integrity.",
+    icon: <ShieldCheck size={24} />,
+    bgColor: "bg-[#FEF9E7]", 
+    accent: "text-[#A3993D]",
     points: ["Lifecycle support", "Surface care", "Ongoing upkeep"],
   },
 ];
 
-const processSteps = [
-  {
-    no: "01",
-    title: "Consultation",
-    text: "We understand your space, usage, style direction, and practical requirements.",
-  },
-  {
-    no: "02",
-    title: "Material Selection",
-    text: "We guide you toward the right flooring system based on durability, budget, and visual finish.",
-  },
-  {
-    no: "03",
-    title: "Site Preparation",
-    text: "We assess the subfloor, resolve inconsistencies, and prepare the surface for accurate installation.",
-  },
-  {
-    no: "04",
-    title: "Installation & Finishing",
-    text: "We execute with precision, detail, and clean finishing for a premium final result.",
-  },
-];
-
-const useCases = [
-  "Homes",
-  "Apartments",
-  "Retail Spaces",
-  "Corporate Offices",
-  "Hospitality",
-  "Showrooms",
-  "Healthcare",
-  "Commercial Interiors",
-];
-
-const materials = [
-  "Hardwood",
-  "Sheet Vinyl",
-  "Vinyl Plank",
-  "Natural Stone",
-  "Carpet Tiles",
-  "Commercial Carpet",
-  "Underlay Systems",
-  "Restoration Finishes",
-];
-
-const toneMap = {
-  green: {
-    bg: "bg-[#03c326]/[0.05]",
-    border: "border-[#03c326]/10",
-    icon: "text-[#03c326]/85",
-    line: "bg-[#03c326]/75",
-  },
-  blue: {
-    bg: "bg-[#003dba]/[0.05]",
-    border: "border-[#003dba]/10",
-    icon: "text-[#003dba]/80",
-    line: "bg-[#003dba]/70",
-  },
-  yellow: {
-    bg: "bg-[#A3993D]/[0.08]",
-    border: "border-[#A3993D]/12",
-    icon: "text-[#8b8133]",
-    line: "bg-[#A3993D]",
-  },
-};
-
 const ServicesInfographicSection = () => {
   return (
-    <section className="bg-white px-4 pb-20 pt-28 font-poppins md:px-6 md:pb-24 md:pt-32 lg:pt-36">
+    <section className="relative w-full bg-white px-6 py-20 font-poppins overflow-hidden">
       <div className="mx-auto max-w-[1440px]">
-        {/* Top Services label */}
-        <motion.div
-          initial={{ opacity: 0, y: 14 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="mb-8 text-center md:mb-10"
-        >
-          <span className="text-[2.4rem] font-medium leading-[0.98] tracking-[-0.055em] text-[#111111] sm:text-[3.1rem] md:text-[4.3rem]">
-            Services
-          </span>
-        </motion.div>
-
-        {/* Lottie block */}
-        <motion.div
-          initial={{ opacity: 0, y: 22 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="mb-16 overflow-hidden px-4 py-6 md:mb-20 md:px-6 md:py-8"
-        >
-          <div className="mx-auto flex h-[260px] w-full max-w-[900px] items-center justify-center sm:h-[320px] md:h-[420px] lg:h-[500px]">
-            {/* Replace this placeholder with your lottie */}
-            <Lottie animationData={servicesAnimation} loop={true} className="h-full w-full" />
-         
-          </div>
-        </motion.div>
-
-        {/* Top intro */}
-        <div className="grid grid-cols-1 gap-8 border-b border-black/6 pb-12 md:grid-cols-[0.9fr_1.1fr] md:items-end">
-          <div>
-            <motion.span
-              initial={{ opacity: 0, y: 10 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              className="mb-5 inline-block text-[10px] font-bold uppercase tracking-[0.3em] text-gray-400"
-            >
-              Services Overview
-            </motion.span>
-
+        
+        {/* 1. HERO INTRO & LOTTIE GRID */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center mb-20 mt-12">
+          <div className="lg:col-span-5 text-center lg:text-left">
             <motion.h2
-              initial={{ opacity: 0, y: 18 }}
+              initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.05, duration: 0.6 }}
-              className="text-[2.4rem] font-medium leading-[0.98] tracking-[-0.055em] text-[#111111] sm:text-[3.1rem] md:text-[4.3rem]"
+              className="text-[3.2rem] md:text-[4.5rem] font-light leading-[1.05] tracking-tighter text-black mb-8"
             >
-              <span className="block">Flooring systems</span>
-              <span className="block">clearly</span>
-              <span className="block">explained.</span>
+              Flooring <br />
+              <span className="font-bold text-[black]">Systems</span> <br />
+              Defined.
             </motion.h2>
+            <p className="text-lg text-slate-500 font-medium leading-relaxed max-w-md mx-auto lg:mx-0">
+              We provide a full-spectrum approach to floor surfaces, combining material durability with clean, industrial-grade execution.
+            </p>
           </div>
-
-          <motion.p
-            initial={{ opacity: 0, y: 18 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.1, duration: 0.6 }}
-            className="max-w-[700px] text-[15px] leading-relaxed text-gray-600 md:ml-auto md:text-[17px]"
+          
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            className="lg:col-span-7 bg-[#e3f2fd] rounded-[3rem] p-8 aspect-video flex items-center justify-center"
           >
-            We provide installation, repair, restoration, and maintenance for
-            premium flooring systems across residential and commercial spaces.
-            Our approach combines material knowledge, practical performance, and
-            clean execution — so every surface works as beautifully as it looks.
-          </motion.p>
-        </div>
-
-        {/* Service cards */}
-        <div className="mt-10 grid grid-cols-1 gap-5 lg:grid-cols-3">
-          {serviceCards.map((service, index) => {
-            const tone = toneMap[service.tone];
-
-            return (
-              <motion.div
-                key={service.title}
-                initial={{ opacity: 0, y: 22 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: index * 0.08, duration: 0.55 }}
-                className={`rounded-[1.75rem] border p-6 md:p-7 ${tone.bg} ${tone.border}`}
-              >
-                <div className="mb-6 flex items-center justify-between">
-                  <div className={`rounded-2xl border border-black/5 bg-white/70 p-3 ${tone.icon}`}>
-                    {service.icon}
-                  </div>
-                  <div className={`h-[2px] w-12 ${tone.line}`} />
-                </div>
-
-                <h3 className="mb-3 text-[1.55rem] font-semibold tracking-[-0.04em] text-[#111111]">
-                  {service.title}
-                </h3>
-
-                <p className="mb-6 text-[15px] leading-relaxed text-gray-600">
-                  {service.description}
-                </p>
-
-                <div className="space-y-3">
-                  {service.points.map((point) => (
-                    <div
-                      key={point}
-                      className="flex items-center gap-3 text-sm text-[#111111]/85"
-                    >
-                      <CheckCircle2 size={16} className={tone.icon} />
-                      <span>{point}</span>
-                    </div>
-                  ))}
-                </div>
-              </motion.div>
-            );
-          })}
-        </div>
-
-        {/* Middle infographic zone */}
-        <div className="mt-14 grid grid-cols-1 gap-8 lg:grid-cols-[1.05fr_0.95fr]">
-          {/* Process */}
-          <motion.div
-            initial={{ opacity: 0, y: 22 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.55 }}
-            className="rounded-[2rem] border border-black/6 bg-[#f8f8f6] p-6 md:p-8"
-          >
-            <div className="mb-8 flex items-center justify-between">
-              <h3 className="text-[1.6rem] font-semibold tracking-[-0.04em] text-[#111111]">
-                Our Process
-              </h3>
-              <span className="text-[10px] font-bold uppercase tracking-[0.22em] text-gray-400">
-                Step by step
-              </span>
-            </div>
-
-            <div className="space-y-5">
-              {processSteps.map((step, index) => (
-                <div
-                  key={step.no}
-                  className={`grid grid-cols-[56px_1fr] gap-4 pb-5 ${
-                    index !== processSteps.length - 1
-                      ? "border-b border-black/6"
-                      : ""
-                  }`}
-                >
-                  <div className="text-[1.15rem] font-semibold tracking-[-0.03em] text-[#143847]">
-                    {step.no}
-                  </div>
-                  <div>
-                    <h4 className="mb-1.5 text-[1.05rem] font-semibold text-[#111111]">
-                      {step.title}
-                    </h4>
-                    <p className="text-sm leading-relaxed text-gray-600">
-                      {step.text}
-                    </p>
-                  </div>
-                </div>
-              ))}
+            <div className="w-full max-w-[480px]">
+              <Lottie animationData={servicesAnimation} loop={true} />
             </div>
           </motion.div>
-
-          {/* Right side info blocks */}
-          <div className="grid grid-cols-1 gap-5">
-            <motion.div
-              initial={{ opacity: 0, y: 22 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.04, duration: 0.55 }}
-              className="rounded-[2rem] border border-black/6 bg-white p-6 md:p-7"
-            >
-              <div className="mb-6 flex items-center gap-3">
-                <div className="rounded-full bg-[#003dba]/[0.06] p-2 text-[#003dba]/80">
-                  <Building2 size={18} />
-                </div>
-                <h3 className="text-[1.35rem] font-semibold tracking-[-0.03em] text-[#111111]">
-                  Where We Work
-                </h3>
-              </div>
-
-              <div className="flex flex-wrap gap-2.5">
-                {useCases.map((item, index) => (
-                  <motion.span
-                    key={item}
-                    initial={{ opacity: 0, y: 8 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.03, duration: 0.4 }}
-                    className="rounded-full border border-[#003dba]/10 bg-[#003dba]/[0.045] px-4 py-2 text-[11px] font-bold uppercase tracking-[0.14em] text-[#003dba]/75"
-                  >
-                    {item}
-                  </motion.span>
-                ))}
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 22 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.08, duration: 0.55 }}
-              className="rounded-[2rem] border border-black/6 bg-white p-6 md:p-7"
-            >
-              <div className="mb-6 flex items-center gap-3">
-                <div className="rounded-full bg-[#03c326]/[0.06] p-2 text-[#03c326]/85">
-                  <Home size={18} />
-                </div>
-                <h3 className="text-[1.35rem] font-semibold tracking-[-0.03em] text-[#111111]">
-                  Material Systems
-                </h3>
-              </div>
-
-              <div className="flex flex-wrap gap-2.5">
-                {materials.map((item, index) => (
-                  <motion.span
-                    key={item}
-                    initial={{ opacity: 0, y: 8 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.03, duration: 0.4 }}
-                    className="rounded-full border border-[#03c326]/10 bg-[#03c326]/[0.045] px-4 py-2 text-[11px] font-bold uppercase tracking-[0.14em] text-[#03c326]/82"
-                  >
-                    {item}
-                  </motion.span>
-                ))}
-              </div>
-            </motion.div>
-          </div>
         </div>
 
-        {/* Bottom stats strip */}
-        <div className="mt-14 grid grid-cols-2 gap-y-10 border-t border-black/6 pt-10 md:grid-cols-4 md:gap-y-0">
-          {[
-            { value: "25+", label: "Years of Craft" },
-            { value: "500+", label: "Projects Delivered" },
-            { value: "12+", label: "Material Categories" },
-            { value: "100%", label: "Execution Focus" },
-          ].map((stat, index) => (
+        {/* 2. CENTERED SECTION LABEL (Above Cards) */}
+        <div className="flex flex-col items-center mb-12">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="h-[1.5px] w-8 bg-[#A3993D]" />
+            <span className="text-[11px] font-black uppercase tracking-[0.4em] text-slate-400">
+              Our Capabilities
+            </span>
+            <div className="h-[1.5px] w-8 bg-[#A3993D]" />
+          </div>
+          <h3 className="text-2xl md:text-3xl font-bold text-black tracking-tight">Core Services</h3>
+        </div>
+
+        {/* 3. PRIMARY SERVICE TILES */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+          {serviceCards.map((service, index) => (
             <motion.div
-              key={stat.label}
-              initial={{ opacity: 0, y: 18 }}
+              key={service.title}
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.06, duration: 0.5 }}
-              className={`flex flex-col items-center justify-center text-center ${
-                index !== 3 ? "md:border-r md:border-black/6" : ""
-              }`}
+              transition={{ delay: index * 0.1 }}
+              className={`group p-10 rounded-[2.5rem] ${service.bgColor} border border-black/5 flex flex-col justify-between min-h-[400px] transition-all duration-500 hover:shadow-xl hover:shadow-black/5`}
             >
-              <div className="text-[2.2rem] font-medium leading-none tracking-[-0.05em] text-[#143847] md:text-[2.7rem]">
-                {stat.value}
+              <div>
+                <div className="flex justify-between items-start mb-8">
+                  <div className={`p-4 rounded-2xl bg-white shadow-sm ${service.accent}`}>
+                    {service.icon}
+                  </div>
+                  <ExternalLink size={20} className="text-black/10 group-hover:text-black/30 transition-colors" />
+                </div>
+                <h3 className="text-3xl font-bold tracking-tighter text-black mb-4">{service.title}</h3>
+                <p className="text-slate-600 font-medium leading-relaxed mb-8">{service.description}</p>
               </div>
-              <p className="mt-4 text-sm text-[#143847]/72">{stat.label}</p>
+              <div className="space-y-3 pt-6 border-t border-black/5">
+                {service.points.map((point) => (
+                  <div key={point} className="flex items-center gap-3 text-[12px] font-bold uppercase tracking-wider text-black/60">
+                    <CheckCircle2 size={16} className={service.accent} />
+                    {point}
+                  </div>
+                ))}
+              </div>
             </motion.div>
           ))}
         </div>
 
-        {/* CTA */}
-        <div className="mt-14 flex justify-center">
-          <button className="group inline-flex items-center gap-3 rounded-full bg-[#111111] px-7 py-3.5 text-sm font-bold text-white transition-all duration-300 hover:bg-[#A3993D]">
-            Talk About Your Project
-            <ArrowRight
-              size={17}
-              className="transition-transform duration-300 group-hover:translate-x-1"
-            />
-          </button>
+        {/* 4. BENTO ZONE (Process, Sectors, Materials) */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            className="lg:col-span-7 bg-[#f8fafc] rounded-[2.5rem] p-10 md:p-12 border border-slate-200 relative overflow-hidden"
+          >
+            <div className="relative z-10">
+              <h3 className="text-3xl font-bold tracking-tight text-slate-900 mb-12 flex items-center gap-4">
+                Our Process <span className="h-[1px] w-12 bg-[#A3993D]" />
+              </h3>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
+                {[
+                  { no: "01", title: "Analysis", desc: "Defining load requirements and aesthetic direction." },
+                  { no: "02", title: "Prep", desc: "Subfloor moisture testing and surface leveling." },
+                  { no: "03", title: "Install", desc: "Industrial-grade installation with seamless edges." },
+                  { no: "04", title: "Certify", desc: "Final buffing and quality certification." }
+                ].map((step) => (
+                  <div key={step.no} className="group cursor-default">
+                    <div className="flex items-center gap-3 mb-2">
+                      <span className="text-[#A3993D] font-black text-xl">{step.no}</span>
+                      <div className="h-[1px] w-8 bg-slate-300 group-hover:w-12 transition-all group-hover:bg-[#A3993D]" />
+                    </div>
+                    <h4 className="text-lg font-bold text-slate-900 group-hover:text-[#A3993D] transition-colors">{step.title}</h4>
+                    <p className="text-sm text-slate-500 font-medium leading-relaxed">{step.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+
+          {/* RIGHT STACK: SECTORS & MATERIALS */}
+          <div className="lg:col-span-5 flex flex-col gap-6">
+            <motion.div whileHover={{ y: -5 }} className="flex-1 bg-[#E3F2FD] rounded-[2.5rem] p-10 border border-blue-200 group">
+              <div className="flex items-center gap-3 mb-8">
+                <div className="p-2 rounded-lg bg-white shadow-sm text-blue-600"><Building2 size={22} /></div>
+                <h3 className="text-2xl font-bold text-slate-900 tracking-tight">Active Sectors</h3>
+              </div>
+              <div className="flex flex-wrap gap-2.5">
+                {["Retail", "Corporate", "Healthcare", "Sports"].map((tag) => (
+                  <span key={tag} className="px-5 py-2.5 rounded-xl bg-white/70 backdrop-blur-sm text-blue-800 text-[11px] font-black uppercase tracking-widest border border-blue-200/50 hover:bg-blue-600 hover:text-white transition-all cursor-default">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </motion.div>
+
+            <motion.div whileHover={{ y: -5 }} className="flex-1 bg-[#E8F5E9] rounded-[2.5rem] p-10 border border-green-200 group">
+              <div className="flex items-center gap-3 mb-8">
+                <div className="p-2 rounded-lg bg-white shadow-sm text-green-600"><Home size={22} /></div>
+                <h3 className="text-2xl font-bold text-slate-900 tracking-tight">Materials</h3>
+              </div>
+              <div className="flex flex-wrap gap-2.5">
+                {["Hardwood", "Vinyl", "Carpet", "Stone"].map((tag) => (
+                  <span key={tag} className="px-5 py-2.5 rounded-xl bg-white/70 backdrop-blur-sm text-green-800 text-[11px] font-black uppercase tracking-widest border border-green-200/50 hover:bg-green-600 hover:text-white transition-all cursor-default">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </motion.div>
+          </div>
+        </div>
+
+        {/* 5. BOTTOM CTA */}
+        <div className="mt-20 flex justify-center">
+           <motion.button 
+             whileHover={{ scale: 1.05 }}
+             className="group flex items-center gap-4 bg-black text-white px-10 py-5 rounded-full font-bold text-xs tracking-[0.2em] uppercase transition-all hover:bg-[#A3993D]"
+           >
+             Start Your Journey
+             <ArrowRight size={18} className="group-hover:translate-x-2 transition-transform" />
+           </motion.button>
         </div>
       </div>
     </section>
   );
 };
+ 
+export default ServicesInfographicSection; 
 
-export default ServicesInfographicSection;
+
+
+
+
+

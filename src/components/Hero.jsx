@@ -82,7 +82,7 @@ export default function LandingHero() {
             </span>
             <h1 className="text-5xl font-light leading-[0.95] tracking-tighter sm:text-7xl md:text-[6.5rem] lg:text-[7.5rem]">
               {slides[current].title.split(' ')[0]} <br />
-              <span className="font-bold">{slides[current].title.split(' ').slice(1).join(' ')}</span>
+              <span className="font-bold text-[#93b0fa]">{slides[current].title.split(' ').slice(1).join(' ')}</span>
             </h1>
             <p className="mt-6 max-w-md text-lg text-gray-300 font-medium">
               {slides[current].subtitle}
@@ -96,7 +96,7 @@ export default function LandingHero() {
                 key={i}
                 onClick={() => setCurrent(i)}
                 className={`group relative h-1 transition-all duration-500 ${
-                  current === i ? 'w-16 bg-[#02c225]/30' : 'w-8 bg-white/30 hover:bg-white/60'
+                  current === i ? 'w-16 bg-[#02c225]/60' : 'w-8 bg-white/30 hover:bg-white/60'
                 }`}
               >
                 <span className="absolute -top-6 left-0 text-[10px] font-bold opacity-0 transition-opacity group-hover:opacity-100">

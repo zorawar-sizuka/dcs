@@ -1,6 +1,7 @@
 "use client";
 import React from 'react';
 import { motion } from 'framer-motion';
+import Image from 'next/image';
 
 const materials = [
   {
@@ -31,62 +32,87 @@ const materials = [
 
 const ServicesSection = () => {
   return (
-    <section className="bg-white px-4 py-20 md:px-6 md:py-24 ">
-      <div className="w-full my-6">
+    <section className="bg-white px-4 py-20 md:px-6 md:py-24 overflow-hidden">
+      <div className="mx-auto max-w-[1440px]">
+        
         {/* Header Area */}
-        <div className="mb-16 flex flex-col gap-8 md:flex-row md:items-start md:justify-between">
+        <div className="mb-12 flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
           <div className="shrink-0">
-            <h2 className="text-4xl font-medium tracking-wide text-black md:text-6xl">
-              Flooring Materials
-            </h2>  
-            <div className="mt-4 h-1 w-16 bg-[#A3993D]" />
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+            >
+              <h2 className="text-4xl font-medium tracking-tight text-black md:text-6xl">
+                Flooring Materials
+              </h2>  
+              <div className="mt-4 h-1 w-16 bg-[#A3993D]" />
+            </motion.div>
           </div>
 
-          <div className="max-w-xl md:ml-auto my-8">
-            <p className=" font-medium tracking-tighter text-gray-600 md:text-lg lg:text-xl">
-              Our legacy dates   <span className="text-[#A3993D] font-medium"> back more than 150 years,</span> b when our founder made a simple
-              but significant statement:{" "}
+          <motion.div 
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.2 }}
+            className="max-w-xl"
+          >
+            <p className="text-base font-medium leading-relaxed tracking-tight text-gray-600 md:text-lg">
+              Our legacy dates <span className="text-[#A3993D]">back more than 150 years.</span> We operate on a simple but significant architectural principle:{" "}
               <span className="italic text-gray-400">
-                "Let the buyer have faith."
+                "Precision in material, faith in craft."
               </span>
             </p>
-          </div>
+          </motion.div>
         </div>
 
-        {/* Materials Grid */}
-        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+        {/* Materials Grid - 2 columns on mobile, 4 on desktop */}
+        <div className="grid grid-cols-2 gap-3 md:gap-4 lg:grid-cols-4">
           {materials.map((item, index) => (
             <motion.div
               key={item.name}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.1, duration: 0.5 }}
-              className="group relative h-[240px] sm:h-[320px] lg:h-[420px] cursor-pointer overflow-hidden rounded-2xl"
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ 
+                delay: index * 0.1, 
+                duration: 0.6, 
+                ease: [0.21, 0.45, 0.32, 0.9] 
+              }}
+              className="group relative aspect-[3/4] cursor-pointer overflow-hidden rounded-xl bg-gray-100 shadow-sm"
             >
-              <div className="absolute inset-0 transition-transform duration-1000 ease-out group-hover:scale-110">
-                <img
+              {/* GPU Accelerated Image Container */}
+              <div className="absolute inset-0 will-change-transform transition-transform duration-[1s] ease-out group-hover:scale-110">
+                <Image
                   src={item.image}
                   alt={item.name}
-                  className="h-full w-full object-cover"
+                  fill
+                  sizes="(max-width: 768px) 50vw, 25vw"
+                  className="object-cover"
+                  loading="lazy"
+                  quality={75} 
                 />
               </div>
 
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent opacity-70 transition-opacity duration-500 group-hover:opacity-90" />
+              {/* Overlay Gradient */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent opacity-70 transition-opacity duration-500 group-hover:opacity-90" />
 
-              <div className="absolute left-4 top-4 sm:left-6 sm:top-6">
-                <span className="block translate-y-[-10px] text-sm sm:text-lg font-bold text-white opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100">
+              {/* Content Overlay */}
+              <div className="absolute inset-0 p-4 md:p-8 flex flex-col justify-between">
+                <span className="text-sm md:text-xl font-bold text-white/40 transition-colors duration-500 group-hover:text-[#A3993D]">
                   {item.id}
                 </span>
-              </div>
 
-              <div className="absolute bottom-4 left-4 text-white sm:bottom-6 sm:left-6">
-                <h3 className="mb-0.5 text-base sm:text-lg lg:text-xl font-bold tracking-tight">
-                  {item.name}
-                </h3>
-                <p className="translate-y-2 text-[10px] sm:text-xs font-semibold uppercase tracking-widest text-gray-300 opacity-0 transition-all duration-500 group-hover:translate-y-0 group-hover:opacity-100">
-                  {item.category}
-                </p>
+                <div>
+                  <h3 className="text-base md:text-2xl font-bold tracking-tight text-white mb-1">
+                    {item.name}
+                  </h3>
+                  <div className="overflow-hidden">
+                    <p className="text-[8px] md:text-[10px] font-black uppercase tracking-[0.2em] text-[#A3993D] translate-y-full transition-transform duration-500 group-hover:translate-y-0">
+                      Explore Series
+                    </p>
+                  </div>
+                </div>
               </div>
             </motion.div>
           ))}

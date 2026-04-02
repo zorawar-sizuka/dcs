@@ -1,8 +1,17 @@
 "use client";
 import React, { useEffect, useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
+import { ArrowUpRight } from "lucide-react";
 
-const CounterStat = ({ value, suffix = "", label, delay = 0, borderClasses = "" }) => {
+// Stat card data with the requested Light Green and Light Blue colors
+const statistics = [
+  { value: "25", suffix: "+", label: "Years of Grit", bgColor: "bg-[#E8F5E9]" },
+  { value: "500", suffix: "+", label: "Elite Projects", bgColor: "bg-[#E3F2FD]" },
+  { value: "120", suffix: "+", label: "Expert Crew", bgColor: "bg-[#E3F2FD]" },
+  { value: "12", suffix: "+", label: "Global Awards", bgColor: "bg-[#E8F5E9]" },
+];
+
+const CounterStat = ({ value, suffix = "", label, delay = 0, bgColor = "" }) => {
   const [count, setCount] = useState(0);
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-10px" });
@@ -11,7 +20,7 @@ const CounterStat = ({ value, suffix = "", label, delay = 0, borderClasses = "" 
     if (!inView) return;
     let start = 0;
     const end = parseInt(value, 10);
-    const duration = 1500;
+    const duration = 2000;
     const stepTime = Math.max(12, Math.floor(duration / end));
 
     const timer = setInterval(() => {
@@ -26,87 +35,131 @@ const CounterStat = ({ value, suffix = "", label, delay = 0, borderClasses = "" 
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0 }}
-      whileInView={{ opacity: 1 }}
-      transition={{ delay, duration: 0.4 }}
-      className={`flex flex-col items-start justify-center p-5 md:p-8 ${borderClasses}`}
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ delay, duration: 0.6 }}
+      className={`flex flex-col items-center justify-center p-6 rounded-[1.5rem] ${bgColor} border border-black/5 shadow-sm text-center`}
     >
-      <div className="text-[1.8rem] font-medium tracking-tighter text-[#0D3A4B] md:text-[2.4rem]">
+      <div className="text-3xl md:text-4xl font-bold tracking-tighter text-black">
         {count}{suffix}
       </div>
-      <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#0D3A4B]/50">
+      <p className="text-[9px] font-black uppercase tracking-[0.2em] text-black/40 mt-2">
         {label}
       </p>
     </motion.div>
   );
 };
 
+const RevolvingLabel = () => {
+  return (
+    <div className="absolute top-0 right-0 h-32 w-32 -translate-y-1/2 translate-x-1/2 z-20 hidden md:block">
+      <motion.div
+        animate={{ rotate: 360 }}
+        transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+        className="relative w-full h-full flex items-center justify-center"
+      >
+        <svg viewBox="0 0 100 100" className="w-full h-full absolute inset-0">
+          <path
+            id="textPath"
+            d="M 50, 50 m -40, 0 a 40,40 0 1,1 80,0 a 40,40 0 1,1 -80,0"
+            className="fill-none"
+          />
+          <text className="text-[10px] font-bold uppercase tracking-[0.15em] fill-[#235fe7]">
+            <textPath href="#textPath" startOffset="0%">
+              • DCS QUALITY • ESTABLISHED 1998 • PRECISION •
+            </textPath>
+          </text>
+        </svg>
+      </motion.div>
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center h-10 w-10 bg-white rounded-full shadow-lg border-2 border-slate-100">
+        <ArrowUpRight className="text-[#A3993D]" size={20} />
+      </div>
+    </div>
+  );
+};
+
 const AboutSection = () => {
   return (
-    <section className="relative w-full bg-[#f3f3f3] px-6 py-12 font-poppins lg:h-[90vh] lg:min-h-[750px] flex items-center">
+    <section className="relative w-[90%] mx-auto bg-white px-6 py-24 font-poppins lg:min-h-screen flex items-center overflow-hidden">
       <div className="mx-auto w-full max-w-[1440px]">
-        
-        {/* Main Grid set to stretch so columns are equal height */}
-        <div className="grid grid-cols-1 items-stretch gap-8 lg:grid-cols-2 lg:gap-24">
+        <div className="grid grid-cols-1 items-center gap-16 lg:grid-cols-2 lg:gap-24 relative">
           
-          {/* Left Column: Title at top, Image pushed to bottom */}
-          <div className="flex flex-col h-full">
-            <motion.span 
-              initial={{ opacity: 0, y: -10 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              className="text-[14px] font-bold uppercase tracking-[0.2em] text-[#0D3A4B] mb-8"
-            >
-              About Us
-            </motion.span>
-            
-            {/* Wrapper pushed to bottom of the column */}
-            <div className="mt-auto hidden lg:flex flex-col justify-end">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.98 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                className="relative w-full overflow-hidden rounded-[2rem] bg-white/20 shadow-sm aspect-[16/10]"
-              >
-                <img
-                  src="/images/about_dsc.jpg" 
-                  alt="Flooring Excellence"
-                  className="h-full w-full object-cover"
-                />
-              </motion.div>
-            </div>
-          </div>
-
-          {/* Right Column: Headline at top, Quadrant at bottom */}
-          <div className="flex flex-col h-full pt-[3px]"> 
+          {/* LEFT COLUMN: Content & Stats */}
+          <div className="flex flex-col order-2 lg:order-1">
             <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              className="mb-12"
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8 }}
             >
-              <h2 className="text-[2.2rem] font-medium leading-[1.1] tracking-[-0.04em] text-[#0D3A4B] md:text-[3.2rem] lg:text-[3.8rem] xl:text-[4.2rem]">
-                Powering modern interiors through thoughtful flooring.
+            <div className="flex items-center gap-4 mb-8">
+  <div className="h-[1.5px] w-10 bg-[#A3993D]" />
+  <span className="text-[11px] font-black uppercase tracking-[0.4em] text-slate-400">
+    About Us
+  </span>
+</div>
+              
+              <h2 className="text-[2.8rem] font-light leading-[1] tracking-tight text-black md:text-[4rem] lg:text-[4.5rem] mb-10">
+                Crafting <span className="font-bold">Surfaces</span> <br />
+                With Soul.
               </h2>
+              
+              <p className="text-lg text-slate-500 max-w-lg mb-12 font-medium leading-relaxed">
+                Founded with a vision to democratize elite infrastructure, we bridge the gap between potential and luxury. We don't just lay floors; we architect environments through radical transparency and precision.
+              </p>
             </motion.div>
 
-            {/* Quadrant Stats pushed to bottom to match left image base */}
-            <div className="mt-auto grid grid-cols-2 rounded-3xl border border-[#0D3A4B]/10 bg-white/40 shadow-sm">
-              <CounterStat 
-                value="25" suffix="+" label="Years Experience" delay={0.1} 
-                borderClasses="border-r border-b border-[#0D3A4B]/10"
-              />
-              <CounterStat 
-                value="500" suffix="+" label="Projects Done" delay={0.2} 
-                borderClasses="border-b border-[#0D3A4B]/10"
-              />
-              <CounterStat 
-                value="120" suffix="+" label="Spaces Saved" delay={0.3} 
-                borderClasses="border-r border-[#0D3A4B]/10"
-              />
-              <CounterStat 
-                value="12" suffix="+" label="Categories" delay={0.4} 
-              />
+            {/* Stat Grid */}
+            <div className="grid grid-cols-2 gap-4 max-w-md">
+              {statistics.map((stat, index) => (
+                <CounterStat 
+                  key={index}
+                  value={stat.value} 
+                  suffix={stat.suffix} 
+                  label={stat.label} 
+                  delay={0.1 * (index + 1)} 
+                  bgColor={stat.bgColor} 
+                />
+              ))}
             </div>
           </div>
 
+          {/* RIGHT COLUMN: Bento Grid with Revolving Label */}
+          <div className="relative order-1 lg:order-2">
+            <RevolvingLabel />
+
+            <div className="grid grid-cols-12 grid-rows-12 gap-3 h-[450px] md:h-[600px] p-2 bg-slate-50/50 rounded-[2.5rem]">
+              
+              {/* Main Bento Card */}
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                className="col-span-8 row-span-8 relative overflow-hidden rounded-[2rem] shadow-xl border-4 border-white group"
+              >
+                <img src="/images/about_dsc.jpg" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" alt="Main" />
+              </motion.div>
+
+              {/* Side Bento Card */}
+              <motion.div 
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="col-span-4 row-span-12 relative overflow-hidden rounded-[2rem] shadow-lg border-4 border-white group"
+              >
+                <img src="/hero/hero2.jpeg" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" alt="Process" />
+              </motion.div>
+
+              {/* Bottom Bento Card */}
+              <motion.div 
+                initial={{ opacity: 0, x: -40 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.4 }}
+                className="col-span-8 row-span-4 relative overflow-hidden rounded-[2rem] shadow-lg border-4 border-white group"
+              >
+                <img src="/services/service1.jpeg" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" alt="Detail" />
+              </motion.div>
+
+            </div>
+          </div>
         </div>
       </div>
     </section>
