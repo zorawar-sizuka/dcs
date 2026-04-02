@@ -1,14 +1,162 @@
+// "use client";
+// import React, { useMemo, useState, useEffect } from "react"; // Added useEffect
+// import { motion, AnimatePresence } from "framer-motion";
+// import { Menu, X } from "lucide-react";
+// import { usePathname } from "next/navigation"; 
+
+// export default function Navbar() {
+//   const [isOpen, setIsOpen] = useState(false);
+//   const [mounted, setMounted] = useState(false); // New state to track mounting
+//   const pathname = usePathname(); 
+
+//   // Set mounted to true once component hits the browser
+//   useEffect(() => {
+//     setMounted(true);
+//   }, []);
+
+//   const navLinks = useMemo(
+//     () => [
+//       { name: "Home", href: "/" },
+//       { name: "Services", href: "/services" },
+//       { name: "Project", href: "/projects" }, 
+//       { name: "Blogs", href: "/blogs" },
+//       { name: "Contact", href: "/contact" },
+//     ],
+//     []
+//   );
+
+//   const isActiveLink = (href) => {
+//     // If not mounted yet, don't calculate active state to prevent mismatch
+//     if (!mounted) return false; 
+//     if (href === "/") return pathname === "/";
+//     return pathname === href;
+//   };
+
+//   return (
+//     <nav className="fixed top-0 left-0 w-full z-[100] px-4 md:px-6 pt-4 bg-transparent">
+//       <div className="mx-auto max-w-[1500px] flex items-center justify-between gap-4">
+        
+//         {/* PILL DOCK CONTAINER */}
+//         <div className="flex-1 bg-[#F3F3F3] rounded-full shadow-[0_18px_40px_rgba(0,0,0,0.12)] border border-white/20 transition-all duration-300">
+//           <div className="flex items-center justify-between px-6 py-4 md:px-10">
+            
+//             <a href="/" className="relative flex shrink-0 items-center">
+//               <img src="/logo/logo.jpg" alt="Logo" className="h-10 w-auto object-contain md:h-12 lg:h-14" />
+//             </a>
+
+//             {/* NavLinks - Centered */}
+//             <ul className="hidden lg:flex items-center justify-center gap-10 text-[15px] font-medium uppercase tracking-[0.18em] text-black absolute left-1/2 -translate-x-1/2">
+//               {navLinks.map((link) => {
+//                 const active = isActiveLink(link.href);
+//                 return (
+//                   <li key={link.name} className="relative">
+//                     <a href={link.href} className="group relative inline-flex cursor-pointer flex-col overflow-hidden pb-1">
+//                       {/* Using the active check safely now */}
+//                       <span className={`inline-block transition-transform duration-300 ${active ? "-translate-y-full" : "group-hover:-translate-y-full"}`}>
+//                         {link.name}
+//                       </span>
+//                       <span className={`absolute left-0 top-full inline-block transition-transform duration-300 ${active ? "-translate-y-full" : "group-hover:-translate-y-full"}`}>
+//                         {link.name}
+//                       </span>
+//                       <span className={`absolute bottom-0 left-0 h-[1.5px] bg-black/90 transition-all duration-300 ${active ? "w-full opacity-100" : "w-0 opacity-70 group-hover:w-full"}`} />
+//                     </a>
+//                   </li>
+//                 );
+//               })}
+//             </ul>
+
+//             <button className="inline-flex items-center justify-center text-black lg:hidden" onClick={() => setIsOpen(!isOpen)}>
+//               {isOpen ? <X size={26} strokeWidth={2.2} /> : <Menu size={26} strokeWidth={2.2} />}
+//             </button>
+
+//             <div className="hidden lg:block w-14 h-1"></div>
+//           </div>
+//         </div>
+
+//         {/* BLUE CTA */}
+//     {/* BLUE CTA - NAVBAR TRIGGER */}
+// <div className="hidden lg:block shrink-0">
+//   <button 
+//     onClick={() => setIsModalOpen(true)} // This triggers the InquiryModal
+//     className="group relative flex items-center gap-3 overflow-hidden rounded-full border border-[#235fe7] bg-[#e8f0fc] px-7 py-4 text-[11px] font-black uppercase tracking-[0.2em] text-[#2862e8] shadow-[0_8px_30px_rgba(0,0,0,0.08)] transition-all duration-500 hover:bg-white hover:border-black/20 hover:-translate-y-[2px] active:scale-95"
+//   >
+//     {/* Animated Shine Effect */}
+//     <span className="absolute inset-0 translate-x-[-150%] rounded-full bg-gradient-to-r from-transparent via-white/40 to-transparent transition-transform duration-1000 ease-in-out group-hover:translate-x-[150%]" />
+    
+//     <span className="relative z-[1] font-black">Get Started</span>
+    
+//     {/* Icon Circle */}
+//     <span className="relative z-[1] flex h-7 w-7 items-center justify-center rounded-full border border-[#235fe7]/20 bg-[#235fe7]/5 backdrop-blur-sm transition-all duration-500 group-hover:rotate-45 group-hover:bg-[#235fe7] group-hover:border-[#235fe7] group-hover:shadow-lg group-hover:shadow-blue-200">
+//       <span className="text-[14px] font-light leading-none transition-colors duration-500 group-hover:text-white">
+//         ↗
+//       </span>
+//     </span>
+//   </button>
+// </div>
+//         {/* MOBILE OVERLAY */}
+//         <AnimatePresence>
+//           {isOpen && (
+//             <>
+//               <motion.div
+//                 initial={{ opacity: 0 }}
+//                 animate={{ opacity: 1 }}
+//                 exit={{ opacity: 0 }}
+//                 className="fixed inset-0 bg-black/40 backdrop-blur-sm lg:hidden z-[101]"
+//                 onClick={() => setIsOpen(false)}
+//               />
+//               <motion.div
+//                 initial={{ x: "100%" }}
+//                 animate={{ x: 0 }}
+//                 exit={{ x: "100%" }}
+//                 transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+//                 className="fixed right-0 top-0 z-[102] h-screen w-[85%] max-w-[350px] bg-white lg:hidden flex flex-col"
+//               >
+//                 <div className="flex items-center justify-between px-8 py-6 border-b border-gray-100">
+//                   <img src="/logo/logo.jpg" alt="Logo" className="h-10 w-auto" />
+//                   <button onClick={() => setIsOpen(false)}><X size={28} /></button>
+//                 </div>
+//                 <div className="flex flex-col gap-4 p-8">
+//                   {navLinks.map((link, i) => (
+//                     <motion.a
+//                       key={link.name}
+//                       href={link.href}
+//                       initial={{ opacity: 0, x: 20 }}
+//                       animate={{ opacity: 1, x: 0 }}
+//                       transition={{ delay: i * 0.1 }}
+//                       className="text-2xl font-bold tracking-tighter text-gray-900 flex justify-between items-center"
+//                     >
+//                       {link.name} <span className="text-gray-300 text-lg">↗</span>
+//                     </motion.a>
+//                   ))}
+//                 </div>
+//               </motion.div>
+//             </>
+//           )}
+//         </AnimatePresence>
+//       </div>
+//     </nav>
+//   );
+// }
+
+
+
+
+
+
+
+
+
+
 "use client";
 import React, { useMemo, useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, ArrowUpRight } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { usePathname } from "next/navigation"; 
-// Import your InquiryModal component
 import InquiryModal from "@/components/BookingButton"; 
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false); // Modal State
+  const [isModalOpen, setIsModalOpen] = useState(false); // Form State
   const [mounted, setMounted] = useState(false);
   const pathname = usePathname(); 
 
@@ -35,19 +183,21 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className="fixed top-0 left-0 w-full z-[100] px-4 md:px-6 pt-4 bg-transparent">
+      <nav className="fixed top-0 left-0 w-full z-[100] px-4 md:px-6 pt-4 bg-transparent font-poppins">
         <div className="mx-auto max-w-[1500px] flex items-center justify-between gap-4">
           
-          {/* --- MAIN NAVIGATION PILL --- */}
+          {/* PILL DOCK CONTAINER */}
           <div className="flex-1 bg-[#F3F3F3] rounded-full shadow-[0_18px_40px_rgba(0,0,0,0.12)] border border-white/20 transition-all duration-300">
             <div className="flex items-center justify-between px-6 py-4 md:px-10">
               
               <a href="/" className="relative flex shrink-0 items-center">
-                <img src="/logo/logo.jpg" alt="Logo" className="h-10 w-auto object-contain md:h-12 lg:h-14 rounded-lg" />
+                {/* REVERTED: Exact original logo sizing */}
+                <img src="/logo/logo.jpg" alt="Logo" className="h-10 w-auto object-contain md:h-12 lg:h-14" />
               </a>
 
-              {/* Desktop Links */}
-              <ul className="hidden lg:flex items-center justify-center gap-10 text-[13px] font-bold uppercase tracking-[0.2em] text-black absolute left-1/2 -translate-x-1/2">
+              {/* NavLinks - Centered */}
+              {/* REVERTED: Exact original text-[15px] and spacing */}
+              <ul className="hidden lg:flex items-center justify-center gap-10 text-[15px] font-medium uppercase tracking-[0.18em] text-black absolute left-1/2 -translate-x-1/2">
                 {navLinks.map((link) => {
                   const active = isActiveLink(link.href);
                   return (
@@ -66,8 +216,7 @@ export default function Navbar() {
                 })}
               </ul>
 
-              {/* Mobile Menu Toggle */}
-              <button className="inline-flex items-center justify-center text-black lg:hidden p-2" onClick={() => setIsOpen(!isOpen)}>
+              <button className="inline-flex items-center justify-center text-black lg:hidden" onClick={() => setIsOpen(!isOpen)}>
                 {isOpen ? <X size={26} strokeWidth={2.2} /> : <Menu size={26} strokeWidth={2.2} />}
               </button>
 
@@ -75,21 +224,21 @@ export default function Navbar() {
             </div>
           </div>
 
-          {/* --- DESKTOP BLUE CTA --- */}
+          {/* BLUE CTA - NOW TRIGGERS FORM */}
           <div className="hidden lg:block shrink-0">
             <button 
               onClick={() => setIsModalOpen(true)}
-              className="group relative flex items-center gap-3 overflow-hidden rounded-full border border-[#235fe7] bg-[#e8f0fc] px-7 py-4 text-[11px] font-black uppercase tracking-[0.2em] text-[#2862e8] shadow-[0_8px_30px_rgba(0,0,0,0.08)] transition-all duration-500 hover:bg-white hover:border-black/20 hover:-translate-y-[2px] active:scale-95"
+              className="group relative flex items-center gap-3 overflow-hidden rounded-full border border-[#235fe7] bg-[#e8f0fc] px-7 py-4 text-[11px] font-black uppercase tracking-[0.2em] text-[#2862e8] shadow-[0_8px_30px_rgba(0,0,0,0.08)] transition-all duration-300 hover:bg-white hover:text-[#2862e8] hover:border-black/20 hover:-translate-y-[1px]"
             >
-              <span className="absolute inset-0 translate-x-[-150%] rounded-full bg-gradient-to-r from-transparent via-white/40 to-transparent transition-transform duration-1000 ease-in-out group-hover:translate-x-[150%]" />
+              <span className="absolute inset-0 translate-x-[-120%] rounded-full bg-gradient-to-r from-white/0 via-white/20 to-white/0 transition-transform duration-700 group-hover:translate-x-[120%]" />
               <span className="relative z-[1]">Get Started</span>
-              <span className="relative z-[1] flex h-7 w-7 items-center justify-center rounded-full border border-[#235fe7]/20 bg-[#235fe7]/5 backdrop-blur-sm transition-all duration-500 group-hover:bg-[#235fe7] group-hover:border-[#235fe7] group-hover:rotate-45">
-                <span className="text-xs group-hover:text-white transition-colors">↗</span>
+              <span className="relative z-[1] flex h-7 w-7 items-center justify-center rounded-full border border-white/20 bg-white/10 backdrop-blur-sm transition-all duration-300 group-hover:bg-white group-hover:border-[#2862e8]">
+                <span className="text-xs group-hover:text-[#2862e8]">↗</span>
               </span>
             </button>
           </div>
 
-          {/* --- MOBILE OVERLAY MENU --- */}
+          {/* MOBILE OVERLAY */}
           <AnimatePresence>
             {isOpen && (
               <>
@@ -97,7 +246,7 @@ export default function Navbar() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="fixed inset-0 bg-black/60 backdrop-blur-md lg:hidden z-[101]"
+                  className="fixed inset-0 bg-black/40 backdrop-blur-sm lg:hidden z-[101]"
                   onClick={() => setIsOpen(false)}
                 />
                 <motion.div
@@ -105,38 +254,32 @@ export default function Navbar() {
                   animate={{ x: 0 }}
                   exit={{ x: "100%" }}
                   transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                  className="fixed right-0 top-0 z-[102] h-screen w-[85%] max-w-[360px] bg-white lg:hidden flex flex-col shadow-2xl"
+                  className="fixed right-0 top-0 z-[102] h-screen w-[85%] max-w-[350px] bg-white lg:hidden flex flex-col"
                 >
-                  <div className="flex items-center justify-between px-8 py-8 border-b border-gray-100">
-                    <img src="/logo/logo.jpg" alt="Logo" className="h-10 w-auto rounded" />
-                    <button onClick={() => setIsOpen(false)} className="p-2 bg-gray-100 rounded-full"><X size={24} /></button>
+                  <div className="flex items-center justify-between px-8 py-6 border-b border-gray-100">
+                    <img src="/logo/logo.jpg" alt="Logo" className="h-10 w-auto" />
+                    <button onClick={() => setIsOpen(false)}><X size={28} /></button>
                   </div>
-                  
-                  <div className="flex flex-col gap-6 p-8 overflow-y-auto">
+                  <div className="flex flex-col gap-4 p-8 overflow-y-auto">
                     {navLinks.map((link, i) => (
                       <motion.a
                         key={link.name}
                         href={link.href}
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: i * 0.05 }}
-                        className={`text-3xl font-bold tracking-tighter flex justify-between items-center transition-colors ${isActiveLink(link.href) ? 'text-[#2862e8]' : 'text-gray-900'}`}
-                        onClick={() => setIsOpen(false)}
+                        transition={{ delay: i * 0.1 }}
+                        className="text-2xl font-bold tracking-tighter text-gray-900 flex justify-between items-center"
                       >
-                        {link.name} <ArrowUpRight size={20} className="text-gray-300" />
+                        {link.name} <span className="text-gray-300 text-lg">↗</span>
                       </motion.a>
                     ))}
-                  </div>
-
-                  <div className="mt-auto p-8 border-t border-gray-100">
+                    
+                    {/* Added Mobile Trigger for consistency */}
                     <button 
-                      onClick={() => {
-                        setIsOpen(false);
-                        setIsModalOpen(true);
-                      }}
-                      className="w-full flex items-center justify-center gap-3 rounded-2xl bg-[#2862e8] py-5 text-sm font-black uppercase tracking-widest text-white shadow-xl active:scale-95 transition-all"
+                      onClick={() => { setIsOpen(false); setIsModalOpen(true); }}
+                      className="mt-6 w-full py-4 bg-[#2862e8] text-white font-black text-[11px] uppercase tracking-widest rounded-xl"
                     >
-                      Get Started <ArrowUpRight size={18} />
+                      Get Started
                     </button>
                   </div>
                 </motion.div>
@@ -146,11 +289,8 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* --- GLOBAL INQUIRY MODAL (Renders Above Everything) --- */}
-      <InquiryModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-      />
+      {/* Renders the form above everything */}
+      <InquiryModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </>
   );
 }
