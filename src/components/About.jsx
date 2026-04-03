@@ -79,13 +79,6 @@ const RevolvingLabel = () => {
 };
 
 const AboutSection = () => {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-
-  if (!mounted) return (
-    <section className="relative w-full bg-white px-6 py-32 font-poppins min-h-screen" />
-  );
-
   return (
     <section className="relative w-full bg-white px-6 py-32 font-poppins overflow-hidden">
       <div className="mx-auto w-full max-w-[1400px]">
