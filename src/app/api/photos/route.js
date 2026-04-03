@@ -4,10 +4,14 @@ import { NextResponse } from "next/server";
 
 // GET all photos (public)
 export async function GET() {
-  const photos = await prisma.photo.findMany({
-    orderBy: { createdAt: "desc" },
-  });
-  return NextResponse.json(photos);
+  try {
+    const photos = await prisma.photo.findMany({
+      orderBy: { createdAt: "desc" },
+    });
+    return NextResponse.json(photos);
+  } catch (error) {
+    return NextResponse.json({ error: "Failed to fetch" }, { status: 500 });
+  }
 }
 
 // POST new photo (admin only)
@@ -37,5 +41,27 @@ export async function POST(request) {
   } catch (error) {
     console.error("Photo create error:", error);
     return NextResponse.json({ error: "Failed to create" }, { status: 500 });
+  }
+}
+
+// DELETE photo (admin only)
+export async function DELETE(request) {
+   const authed = await isAuthenticated();
+  if (!authed) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
+
+    if (!id) {
+      return NextResponse.json({ error: "ID is required" }, { status: 400 });
+    }
+
+    await prisma.photo.delete({ where: { id } });
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    return NextResponse.json({ error: "Delete failed" }, { status: 500 });
   }
 }

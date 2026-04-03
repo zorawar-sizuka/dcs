@@ -33,12 +33,7 @@ export async function POST(request) {
         upsert: false,
       });
 
-    if (error) {
-      console.error("Supabase storage error:", error);
-      throw error;
-    }
-
-    // Get public URL
+    // Get public URL for Simple Mode
     const { data: { publicUrl } } = supabase.storage
       .from("dcs-uploads")
       .getPublicUrl(filePath);
