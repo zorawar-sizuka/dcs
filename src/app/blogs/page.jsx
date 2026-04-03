@@ -1,43 +1,31 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, ArrowUpRight, Search, X, Calendar, User, Clock } from 'lucide-react';
 
-const blogPosts = [
-  {
-    id: 1,
-    title: "Collaboration for Climate Action",
-    excerpt: "Why teamwork is the foundation of lasting environmental change and sustainable material sourcing.",
-    content: "Full detailed article content goes here. In the modern era of premium hardwood sourcing, collaboration isn't just a buzzword; it's a structural requirement. We work with foresters and tech innovators to ensure every plank laid contributes to a greener footprint...",
-    image: "/images/dummy_dsc.avif",
-    category: "Sustainability",
-    bgColor: "bg-[#E8F5E9]", // Light Green (Permanent)
-    accent: "text-green-700"
-  },
-  {
-    id: 2,
-    title: "From Trees to Technology",
-    excerpt: "Exploring how innovation drives sustainability in the modern world of premium hardwood.",
-    content: "From LiDAR scanning of forests to precision CNC milling, technology has transformed the flooring industry. Our latest research shows that smart-cutting reduces waste by 40%, ensuring that we respect the material from the moment it leaves the earth...",
-    image: "/images/dummy_dsc.avif",
-    category: "Innovation",
-    bgColor: "bg-[#E3F2FD]", // Light Blue (Permanent)
-    accent: "text-blue-700"
-  },
-  {
-    id: 3,
-    title: "Starting and Growing a Career",
-    excerpt: "Web design blends creativity and tech, offering strong demand, solid pay, and roles in interior design.",
-    content: "The intersection of digital design and physical interiors is closer than ever. Architects and interior designers are now using real-time rendering to simulate wood grain performance under specific lighting conditions, creating a new career path for 'Digital Interior Specialists'...",
-    image: "/images/dummy_dsc.avif",
-    category: "Culture",
-    bgColor: "bg-[#FEF9E7]", // Light Gold (Permanent)
-    accent: "text-[#A3993D]"
-  }
-];
-
 const BlogPage = () => {
   const [selectedPost, setSelectedPost] = useState(null);
+  const [blogs, setBlogs] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+
+  useEffect(() => {
+    fetch("/api/blogs")
+      .then((res) => res.json())
+      .then((data) => {
+        setBlogs(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Failed to fetch blogs", err);
+        setLoading(false);
+      });
+  }, []);
+
+  const filteredBlogs = blogs.filter(b => 
+    b.title.toLowerCase().includes(search.toLowerCase()) || 
+    b.category.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <div className="bg-white pb-24 font-poppins text-black">
@@ -96,6 +84,8 @@ const BlogPage = () => {
             <div className="relative group">
               <input
                 type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search articles..."
                 className="w-full border-b border-gray-200 bg-gray-50 px-2 py-4 font-medium outline-none transition-all focus:border-black"
               />
@@ -104,46 +94,58 @@ const BlogPage = () => {
           </div>
         </div>
 
-        {/* --- BLOG CARDS: PERMANENT COLOR MODE --- */}
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-          {blogPosts.map((post, index) => (
-            <motion.div
-              key={post.id}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.1 }}
-              onClick={() => setSelectedPost(post)}
-              className={`group flex h-full cursor-pointer flex-col p-6 rounded-[3rem] transition-all duration-500 border border-black/5 ${post.bgColor} hover:shadow-xl hover:-translate-y-1`}
-            >
-              <div className="mb-8 aspect-[1.4/1] overflow-hidden rounded-[2.5rem] shadow-sm">
-                <img
-                  src={post.image}
-                  alt={post.title}
-                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                />
-              </div>
-
-              <div className="flex flex-grow flex-col px-2">
-                <span className={`mb-4 text-[10px] font-black uppercase tracking-[0.3em] ${post.accent}`}>
-                  {post.category}
-                </span>
-                <h3 className="mb-4 text-2xl font-bold leading-tight tracking-tight transition-colors group-hover:text-black md:text-3xl">
-                  {post.title}
-                </h3>
-                <p className="mb-6 line-clamp-3 text-[15px] leading-relaxed text-gray-600">
-                  {post.excerpt}
-                </p>
-
-                <div className="mt-auto">
-                  <button className="flex items-center gap-2 text-sm font-bold transition-all duration-300 group-hover:gap-4">
-                    Read Article <ArrowRight size={16} />
-                  </button>
+        {/* --- BLOG CARDS: DYNAMIC --- */}
+        {loading ? (
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="h-[480px] bg-gray-100 animate-pulse rounded-[3rem]" />
+            ))}
+          </div>
+        ) : filteredBlogs.length === 0 ? (
+          <div className="py-20 text-center bg-gray-50 rounded-3xl">
+            <h3 className="text-xl font-bold text-gray-400">No blog posts found</h3>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+            {filteredBlogs.map((post, index) => (
+              <motion.div
+                key={post.id}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: index * 0.1 }}
+                onClick={() => setSelectedPost(post)}
+                className={`group flex h-full cursor-pointer flex-col p-6 rounded-[3rem] transition-all duration-500 border border-black/5 ${post.bgColor || 'bg-white'} hover:shadow-xl hover:-translate-y-1`}
+              >
+                <div className="mb-8 aspect-[1.4/1] overflow-hidden rounded-[2.5rem] shadow-sm">
+                  <img
+                    src={post.image}
+                    alt={post.title}
+                    className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
                 </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+
+                <div className="flex flex-grow flex-col px-2">
+                  <span className={`mb-4 text-[10px] font-black uppercase tracking-[0.3em] ${post.accent || 'text-gray-500'}`}>
+                    {post.category}
+                  </span>
+                  <h3 className="mb-4 text-2xl font-bold leading-tight tracking-tight transition-colors group-hover:text-black md:text-3xl">
+                    {post.title}
+                  </h3>
+                  <p className="mb-6 line-clamp-3 text-[15px] leading-relaxed text-gray-600">
+                    {post.excerpt}
+                  </p>
+
+                  <div className="mt-auto">
+                    <button className="flex items-center gap-2 text-sm font-bold transition-all duration-300 group-hover:gap-4">
+                      Read Article <ArrowRight size={16} />
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* --- MODAL OVERLAY --- */}
@@ -190,13 +192,13 @@ const BlogPage = () => {
 
                 <div className="flex flex-wrap gap-6 mb-10 pb-8 border-b border-slate-100">
                   <div className="flex items-center gap-2 text-slate-400 text-xs font-bold uppercase tracking-widest">
-                    <User size={14} /> DCS Editorial
+                    <User size={14} /> {selectedPost.author || "DCS Editorial"}
                   </div>
                   <div className="flex items-center gap-2 text-slate-400 text-xs font-bold uppercase tracking-widest">
-                    <Calendar size={14} /> April 2026
+                    <Calendar size={14} /> {new Date(selectedPost.createdAt || Date.now()).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
                   </div>
                   <div className="flex items-center gap-2 text-slate-400 text-xs font-bold uppercase tracking-widest">
-                    <Clock size={14} /> 5 Min Read
+                    <Clock size={14} /> {Math.max(1, Math.ceil((selectedPost.content?.length || 0) / 1000))} Min Read
                   </div>
                 </div>
 

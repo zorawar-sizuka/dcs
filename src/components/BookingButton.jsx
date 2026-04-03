@@ -1,9 +1,47 @@
 "use client";
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Send, CheckCircle2, ChevronDown } from 'lucide-react';
+import { X, Send, CheckCircle2, ChevronDown, Loader2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const InquiryModal = ({ isOpen, onClose }) => {
+  const [loading, setLoading] = React.useState(false);
+  const [formData, setFormData] = React.useState({
+    name: '',
+    email: '',
+    phone: '',
+    serviceType: '',
+    message: ''
+  });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!formData.name || !formData.email || !formData.serviceType) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await fetch('/api/submissions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...formData, source: 'inquiry' })
+      });
+
+      if (res.ok) {
+        toast.success('Inquiry sent successfully!');
+        setFormData({ name: '', email: '', phone: '', serviceType: '', message: '' });
+        onClose();
+      } else {
+        toast.error('Failed to send request. Try again.');
+      }
+    } catch (error) {
+      toast.error('Network error. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <AnimatePresence>
       {isOpen && (
@@ -64,34 +102,57 @@ const InquiryModal = ({ isOpen, onClose }) => {
                   <div className="h-1 w-12 bg-blue-500 mt-2 rounded-full" />
                 </div>
 
-                <form className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6">
+                <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-6">
                   {/* Row 1 */}
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Full Name</label>
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Full Name *</label>
                     <input 
                       type="text" 
+                      required
+                      value={formData.name}
+                      onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                       placeholder="Name" 
                       className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3.5 font-semibold text-slate-900 focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all"
                     />
                   </div>
 
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Email</label>
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Email *</label>
                     <input 
                       type="email" 
+                      required
+                      value={formData.email}
+                      onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
                       placeholder="Email" 
                       className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3.5 font-semibold text-slate-900 focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all"
                     />
                   </div>
 
                   {/* Row 2 */}
-                  <div className="md:col-span-2 space-y-1.5">
-                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Service Type</label>
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Phone Number</label>
+                    <input 
+                      type="tel"
+                      value={formData.phone}
+                      onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                      placeholder="Phone" 
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3.5 font-semibold text-slate-900 focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Service Type *</label>
                     <div className="relative">
-                      <select className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3.5 font-semibold text-slate-900 appearance-none focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all">
-                        <option>Residential Flooring</option>
-                        <option>Commercial Projects</option>
-                        <option>General Support</option>
+                      <select 
+                        required
+                        value={formData.serviceType}
+                        onChange={(e) => setFormData(prev => ({ ...prev, serviceType: e.target.value }))}
+                        className={`w-full rounded-xl border border-slate-200 bg-slate-50 p-3.5 font-semibold appearance-none focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all ${formData.serviceType ? 'text-slate-900' : 'text-slate-400'}`}
+                      >
+                        <option value="" disabled>Select Service Type</option>
+                        <option value="Residential Flooring">Residential Flooring</option>
+                        <option value="Commercial Projects">Commercial Projects</option>
+                        <option value="General Support">General Support</option>
                       </select>
                       <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={16} />
                     </div>
@@ -102,6 +163,8 @@ const InquiryModal = ({ isOpen, onClose }) => {
                     <label className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 ml-1">Message</label>
                     <textarea 
                       rows="3" 
+                      value={formData.message}
+                      onChange={(e) => setFormData(prev => ({ ...prev, message: e.target.value }))}
                       placeholder="Briefly describe your needs..." 
                       className="w-full rounded-xl border border-slate-200 bg-slate-50 p-3.5 font-semibold text-slate-900 focus:ring-2 focus:ring-blue-500 focus:bg-white outline-none transition-all resize-none"
                     />
@@ -109,9 +172,17 @@ const InquiryModal = ({ isOpen, onClose }) => {
 
                   {/* Submit */}
                   <div className="md:col-span-2 pt-2">
-                    <button className="group flex w-full items-center justify-center gap-3 rounded-xl bg-black py-4 text-base font-bold text-white transition-all hover:bg-blue-600 active:scale-[0.98] shadow-lg">
-                      Send Inquiry
-                      <Send size={18} className="transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
+                    <button 
+                      type="submit"
+                      disabled={loading}
+                      className="group flex w-full items-center justify-center gap-3 rounded-xl bg-black py-4 text-base font-bold text-white transition-all hover:bg-blue-600 active:scale-[0.98] shadow-lg disabled:opacity-70 disabled:cursor-not-allowed"
+                    >
+                      {loading ? 'Sending...' : 'Send Inquiry'}
+                      {loading ? (
+                        <Loader2 size={18} className="animate-spin" />
+                      ) : (
+                        <Send size={18} className="transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
+                      )}
                     </button>
                   </div>
                 </form>

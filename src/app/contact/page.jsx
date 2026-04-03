@@ -1,9 +1,46 @@
 "use client";
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Phone, MapPin, ArrowRight, ArrowUpRight, Send, ChevronDown } from 'lucide-react';
+import { Mail, Phone, MapPin, ArrowRight, ArrowUpRight, Send, ChevronDown, Loader2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const ContactPage = () => {
+  const [loading, setLoading] = React.useState(false);
+  const [formData, setFormData] = React.useState({
+    name: '',
+    email: '',
+    phone: '',
+    serviceType: '',
+    message: ''
+  });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!formData.name || !formData.email || !formData.serviceType || !formData.message) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await fetch('/api/submissions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...formData, source: 'contact' })
+      });
+
+      if (res.ok) {
+        toast.success('Inquiry sent successfully!');
+        setFormData({ name: '', email: '', phone: '', serviceType: '', message: '' });
+      } else {
+        toast.error('Failed to send request. Try again.');
+      }
+    } catch (error) {
+      toast.error('Network error. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <div className="bg-white pb-24 font-poppins text-black">
       
@@ -91,13 +128,16 @@ const ContactPage = () => {
               Project Inquiry
             </h2>
 
-            <form className="grid grid-cols-1 gap-x-8 gap-y-10 md:grid-cols-2">
+            <form onSubmit={handleSubmit} className="grid grid-cols-1 gap-x-8 gap-y-10 md:grid-cols-2">
               <div className="space-y-2">
                 <label className="ml-1 text-[10px] font-black uppercase tracking-widest text-gray-400">
-                  Full Name
+                  Full Name *
                 </label>
                 <input
                   type="text"
+                  required
+                  value={formData.name}
+                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                   placeholder="John Doe"
                   className="w-full rounded-xl border-none bg-[#e9f4e9] p-5 font-medium outline-none ring-1 ring-gray-100 transition-all placeholder:text-gray-400 focus:ring-2 focus:ring-[#A3993D] focus:bg-white"
                 />
@@ -105,25 +145,46 @@ const ContactPage = () => {
 
               <div className="space-y-2">
                 <label className="ml-1 text-[10px] font-black uppercase tracking-widest text-gray-400">
-                  Email Address
+                  Email Address *
                 </label>
                 <input
                   type="email"
+                  required
+                  value={formData.email}
+                  onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
                   placeholder="john@dscstrata.com"
                   className="w-full rounded-xl border-none bg-[#e9f4e9] p-5 font-medium outline-none ring-1 ring-gray-100 transition-all placeholder:text-gray-400 focus:ring-2 focus:ring-[#A3993D] focus:bg-white"
                 />
               </div>
 
-              <div className="space-y-2 md:col-span-2">
+              <div className="space-y-2 md:col-span-1">
                 <label className="ml-1 text-[10px] font-black uppercase tracking-widest text-gray-400">
-                  Subject
+                  Phone Number
+                </label>
+                <input
+                  type="tel"
+                  value={formData.phone}
+                  onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                  placeholder="+977 98..."
+                  className="w-full rounded-xl border-none bg-[#e9f4e9] p-5 font-medium outline-none ring-1 ring-gray-100 transition-all placeholder:text-gray-400 focus:ring-2 focus:ring-[#A3993D] focus:bg-white"
+                />
+              </div>
+
+              <div className="space-y-2 md:col-span-1">
+                <label className="ml-1 text-[10px] font-black uppercase tracking-widest text-gray-400">
+                  Subject *
                 </label>
                 <div className="relative">
-                  <select className="w-full appearance-none rounded-xl border-none bg-[#e9f4e9] p-5 font-medium outline-none ring-1 ring-gray-100 transition-all focus:ring-2 focus:ring-[#A3993D] focus:bg-white">
-                    <option>Select product type</option>
-                    <option>Residential Flooring</option>
-                    <option>Commercial Projects</option>
-                    <option>Material Sourcing</option>
+                  <select 
+                    required
+                    value={formData.serviceType}
+                    onChange={(e) => setFormData(prev => ({ ...prev, serviceType: e.target.value }))}
+                    className={`w-full appearance-none rounded-xl border-none bg-[#e9f4e9] p-5 font-medium outline-none ring-1 ring-gray-100 transition-all focus:ring-2 focus:ring-[#A3993D] focus:bg-white ${formData.serviceType ? 'text-black' : 'text-gray-400'}`}
+                  >
+                    <option value="" disabled>Select product type</option>
+                    <option value="Residential Flooring">Residential Flooring</option>
+                    <option value="Commercial Projects">Commercial Projects</option>
+                    <option value="Material Sourcing">Material Sourcing</option>
                   </select>
                   <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={18} />
                 </div>
@@ -131,22 +192,30 @@ const ContactPage = () => {
 
               <div className="space-y-2 md:col-span-2">
                 <label className="ml-1 text-[10px] font-black uppercase tracking-widest text-gray-400">
-                  Message
+                  Message *
                 </label>
                 <textarea
                   rows="6"
+                  required
+                  value={formData.message}
+                  onChange={(e) => setFormData(prev => ({ ...prev, message: e.target.value }))}
                   placeholder="Tell us about your project or general inquiry..."
                   className="w-full resize-none rounded-xl border-none bg-[#e9f4e9] p-5 font-medium outline-none ring-1 ring-gray-100 transition-all placeholder:text-gray-400 focus:ring-2 focus:ring-[#A3993D] focus:bg-white"
                 />
               </div>
 
               <div className="md:col-span-2">
-                <button className="group flex w-full items-center justify-center gap-3 rounded-2xl bg-black py-6 font-bold text-white transition-all hover:bg-[#A3993D] shadow-lg hover:shadow-[#A3993D]/20">
-                  Submit Inquiry
-                  <ArrowRight
-                    size={20}
-                    className="transition-transform group-hover:translate-x-1"
-                  />
+                <button 
+                  type="submit"
+                  disabled={loading}
+                  className="group flex w-full items-center justify-center gap-3 rounded-2xl bg-black py-6 font-bold text-white transition-all hover:bg-[#A3993D] shadow-lg hover:shadow-[#A3993D]/20 disabled:opacity-70 disabled:cursor-not-allowed"
+                >
+                  {loading ? 'Submitting...' : 'Submit Inquiry'}
+                  {loading ? (
+                    <Loader2 size={20} className="animate-spin" />
+                  ) : (
+                    <ArrowRight size={20} className="transition-transform group-hover:translate-x-1" />
+                  )}
                 </button>
               </div>
             </form>

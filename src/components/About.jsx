@@ -52,64 +52,71 @@ const CounterStat = ({ value, suffix = "", label, delay = 0, bgColor = "" }) => 
 
 const RevolvingLabel = () => {
   return (
-    <div className="absolute top-0 right-0 h-32 w-32 -translate-y-1/2 translate-x-1/2 z-20 hidden md:block">
+    <div className="absolute -top-12 -right-12 h-40 w-40 z-30 hidden md:block">
       <motion.div
         animate={{ rotate: 360 }}
-        transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-        className="relative w-full h-full flex items-center justify-center"
+        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+        className="relative w-full h-full flex items-center justify-center p-2 rounded-full border border-black/5 bg-white/20 backdrop-blur-md"
       >
-        <svg viewBox="0 0 100 100" className="w-full h-full absolute inset-0">
+        <svg viewBox="0 0 100 100" className="w-full h-full absolute inset-0 drop-shadow-sm">
           <path
             id="textPath"
-            d="M 50, 50 m -40, 0 a 40,40 0 1,1 80,0 a 40,40 0 1,1 -80,0"
+            d="M 50, 50 m -35, 0 a 35,35 0 1,1 70,0 a 35,35 0 1,1 -70,0"
             className="fill-none"
           />
-          <text className="text-[10px] font-bold uppercase tracking-[0.15em] fill-[#235fe7]">
+          <text className="text-[12px] font-black uppercase tracking-[0.2em] fill-[#1A1A1A]">
             <textPath href="#textPath" startOffset="0%">
-              • DCS QUALITY • ESTABLISHED 1998 • PRECISION •
+              • PREMIUM QUALITY • DCS CORP EST. 1998 • PRECISION •
             </textPath>
           </text>
         </svg>
+        <div className="h-14 w-14 bg-[#235fe7] rounded-full flex items-center justify-center shadow-lg border-2 border-white transform rotate-[-45deg]">
+          <ArrowUpRight className="text-white" size={24} strokeWidth={3} />
+        </div>
       </motion.div>
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center h-10 w-10 bg-white rounded-full shadow-lg border-2 border-slate-100">
-        <ArrowUpRight className="text-[#A3993D]" size={20} />
-      </div>
     </div>
   );
 };
 
 const AboutSection = () => {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  if (!mounted) return (
+    <section className="relative w-full bg-white px-6 py-32 font-poppins min-h-screen" />
+  );
+
   return (
-    <section className="relative w-[90%] mx-auto bg-white px-6 py-24 font-poppins lg:min-h-screen flex items-center overflow-hidden">
-      <div className="mx-auto w-full max-w-[1440px]">
-        <div className="grid grid-cols-1 items-center gap-16 lg:grid-cols-2 lg:gap-24 relative">
+    <section className="relative w-full bg-white px-6 py-32 font-poppins overflow-hidden">
+      <div className="mx-auto w-full max-w-[1400px]">
+        <div className="grid grid-cols-1 items-start gap-20 lg:grid-cols-2 lg:gap-32">
           
           {/* LEFT COLUMN: Content & Stats */}
-          <div className="flex flex-col order-2 lg:order-1">
+          <div className="flex flex-col lg:sticky lg:top-32">
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8 }}
             >
-            <div className="flex items-center gap-4 mb-8">
-  <div className="h-[1.5px] w-10 bg-[#A3993D]" />
-  <span className="text-[11px] font-black uppercase tracking-[0.4em] text-slate-400">
-    About Us
-  </span>
-</div>
+              <div className="flex items-center gap-4 mb-8">
+                <div className="h-[2px] w-12 bg-[#235fe7]" />
+                <span className="text-[12px] font-black uppercase tracking-[0.5em] text-[#235fe7]">
+                  The Legacy
+                </span>
+              </div>
               
-              <h2 className="text-[2.8rem] font-light leading-[1] tracking-tight text-black md:text-[4rem] lg:text-[4.5rem] mb-10">
+              <h2 className="text-[3.5rem] md:text-[5rem] font-light leading-[0.95] tracking-tighter text-black mb-10">
                 Crafting <span className="font-bold">Surfaces</span> <br />
                 With Soul.
               </h2>
               
-              <p className="text-lg text-slate-500 max-w-lg mb-12 font-medium leading-relaxed">
+              <p className="text-xl text-slate-500 max-w-lg mb-16 font-medium leading-relaxed">
                 Founded with a vision to democratize elite infrastructure, we bridge the gap between potential and luxury. We don't just lay floors; we architect environments through radical transparency and precision.
               </p>
             </motion.div>
 
             {/* Stat Grid */}
-            <div className="grid grid-cols-2 gap-4 max-w-md">
+            <div className="grid grid-cols-2 gap-6 max-w-md">
               {statistics.map((stat, index) => (
                 <CounterStat 
                   key={index}
@@ -123,39 +130,49 @@ const AboutSection = () => {
             </div>
           </div>
 
-          {/* RIGHT COLUMN: Bento Grid with Revolving Label */}
-          <div className="relative order-1 lg:order-2">
+          {/* RIGHT COLUMN: Bento Grid */}
+          <div className="relative pt-12 lg:pt-0">
             <RevolvingLabel />
 
-            <div className="grid grid-cols-12 grid-rows-12 gap-3 h-[450px] md:h-[600px] p-2 bg-slate-50/50 rounded-[2.5rem]">
+            <div className="grid grid-cols-6 grid-rows-6 gap-3 h-[500px] md:h-[650px]">
               
-              {/* Main Bento Card */}
+              {/* Item 1: Large Vertical */}
               <motion.div 
-                initial={{ opacity: 0, scale: 0.95 }}
+                initial={{ opacity: 0, scale: 0.9 }}
                 whileInView={{ opacity: 1, scale: 1 }}
-                className="col-span-8 row-span-8 relative overflow-hidden rounded-[2rem] shadow-xl border-4 border-white group"
+                className="col-span-3 row-span-4 relative overflow-hidden rounded-[2.5rem] shadow-xl group border border-black/5"
               >
-                <img src="/images/about_dsc.jpg" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" alt="Main" />
+                <img src="/images/about2_dcs.jpg" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" alt="Main" />
               </motion.div>
 
-              {/* Side Bento Card */}
+              {/* Item 2: Square Top Right */}
               <motion.div 
-                initial={{ opacity: 0, y: 40 }}
+                initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
-                className="col-span-4 row-span-12 relative overflow-hidden rounded-[2rem] shadow-lg border-4 border-white group"
+                className="col-span-3 row-span-2 relative overflow-hidden rounded-[2.5rem] shadow-lg group border border-black/5"
               >
-                <img src="/hero/hero2.jpeg" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" alt="Process" />
+                <img src="/images/about1_dcs.jpg" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" alt="Process" />
               </motion.div>
 
-              {/* Bottom Bento Card */}
+              {/* Item 3: Wide Bottom Right */}
               <motion.div 
-                initial={{ opacity: 0, x: -40 }}
+                initial={{ opacity: 0, x: 30 }}
                 whileInView={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.4 }}
-                className="col-span-8 row-span-4 relative overflow-hidden rounded-[2rem] shadow-lg border-4 border-white group"
+                className="col-span-3 row-span-4 relative overflow-hidden rounded-[2.5rem] shadow-lg group border border-black/5"
               >
-                <img src="/services/service1.jpeg" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" alt="Detail" />
+                <img src="/images/about3_dcs.jpg" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" alt="Detail" />
+              </motion.div>
+
+              {/* Item 4: Bottom Left Visual */}
+              <motion.div 
+                initial={{ opacity: 0, y: -20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.6 }}
+                className="col-span-3 row-span-2 relative overflow-hidden rounded-[2.5rem] shadow-lg group border border-black/5"
+              >
+                <img src="/images/about4_dcs.jpg" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" alt="About 4" />
               </motion.div>
 
             </div>

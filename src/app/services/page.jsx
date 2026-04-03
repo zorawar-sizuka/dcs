@@ -1,7 +1,8 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import dynamic from "next/dynamic";
+import InquiryModal from "@/components/BookingButton";
 import {
   Layers3,
   Hammer,
@@ -20,7 +21,8 @@ const Lottie = dynamic(() => import("lottie-react"), {
   ),
 });
 
-import servicesAnimation from "../../../public/lottie/services.json";
+// import servicesAnimation from "../../../public/lottie/services.json"; 
+import servicesAnimation from "../../../public/lottie/services2_dcs.json";
 
 const serviceCards = [
   {
@@ -50,8 +52,11 @@ const serviceCards = [
 ];
 
 const ServicesInfographicSection = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   return (
     <section className="relative w-full bg-white px-6 py-20 font-poppins overflow-hidden">
+      <InquiryModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
       <div className="mx-auto max-w-[1440px]">
         
         {/* 1. HERO INTRO & LOTTIE GRID */}
@@ -193,6 +198,7 @@ const ServicesInfographicSection = () => {
         {/* 5. BOTTOM CTA */}
         <div className="mt-20 flex justify-center">
            <motion.button 
+             onClick={() => setIsModalOpen(true)}
              whileHover={{ scale: 1.05 }}
              className="group flex items-center gap-4 bg-black text-white px-10 py-5 rounded-full font-bold text-xs tracking-[0.2em] uppercase transition-all hover:bg-[#A3993D]"
            >

@@ -2,7 +2,8 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, Calendar } from 'lucide-react';
+import { ArrowRight, Calendar, Loader2 } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 const slides = [
   {
@@ -32,6 +33,41 @@ const slides = [
 
 export default function LandingHero() {
   const [current, setCurrent] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    serviceType: ''
+  });
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!formData.name || !formData.email || !formData.serviceType) {
+      toast.error('Please fill in all required fields');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await fetch('/api/submissions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...formData, source: 'hero' })
+      });
+
+      if (res.ok) {
+        toast.success('Quote request sent successfully!');
+        setFormData({ name: '', email: '', phone: '', serviceType: '' });
+      } else {
+        toast.error('Failed to send request. Try again.');
+      }
+    } catch (error) {
+      toast.error('Network error. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -125,31 +161,57 @@ export default function LandingHero() {
             </div>
           </div>
 
-          <form className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <input
               type="text"
-              placeholder="Full Name"
+              required
+              value={formData.name}
+              onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+              placeholder="Full Name *"
               className="w-full rounded-2xl border-none bg-white px-6 py-4 text-sm text-gray-900 placeholder:text-gray-400 outline-none transition-all focus:ring-2 focus:ring-[#2862e8]/20"
             />
             <input
               type="email"
-              placeholder="Email Address"
+              required
+              value={formData.email}
+              onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+              placeholder="Email Address *"
+              className="w-full rounded-2xl border-none bg-white px-6 py-4 text-sm text-gray-900 placeholder:text-gray-400 outline-none transition-all focus:ring-2 focus:ring-[#2862e8]/20"
+            />
+            <input
+              type="tel"
+              value={formData.phone}
+              onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+              placeholder="Phone Number (Optional)"
               className="w-full rounded-2xl border-none bg-white px-6 py-4 text-sm text-gray-900 placeholder:text-gray-400 outline-none transition-all focus:ring-2 focus:ring-[#2862e8]/20"
             />
             <div className="relative">
-              <select className="w-full appearance-none rounded-2xl border-none bg-white px-6 py-4 text-sm font-medium text-gray-400 outline-none focus:ring-2 focus:ring-[#2862e8]/20">
-                <option>Select Service</option>
-                <option>Residential Flooring</option>
-                <option>Sports/Futsal Courts</option>
-                <option>Commercial Repair</option>
+              <select 
+                required
+                value={formData.serviceType}
+                onChange={(e) => setFormData(prev => ({ ...prev, serviceType: e.target.value }))}
+                className={`w-full appearance-none rounded-2xl border-none bg-white px-6 py-4 text-sm font-medium outline-none focus:ring-2 focus:ring-[#2862e8]/20 ${formData.serviceType ? 'text-gray-900' : 'text-gray-400'}`}
+              >
+                <option value="" disabled>Select Service *</option>
+                <option value="Residential Flooring">Residential Flooring</option>
+                <option value="Sports/Futsal Courts">Sports/Futsal Courts</option>
+                <option value="Commercial Repair">Commercial Repair</option>
               </select>
               <span className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-gray-300">▼</span>
             </div>
             
             {/* Blue Button matches your Navbar "Get Started" */}
-            <button className="group relative mt-4 flex w-full items-center justify-center gap-4 overflow-hidden rounded-full bg-[#e8f0fc] border border-[#235fe7] py-5 text-[11px] font-black uppercase tracking-widest text-[#2862e8] transition-all hover:bg-white">
-              <span className="relative z-10">Send Request</span>
-              <ArrowRight size={18} className="relative z-10 transition-transform group-hover:translate-x-1" />
+            <button 
+              type="submit"
+              disabled={loading}
+              className="group relative mt-4 flex w-full items-center justify-center gap-4 overflow-hidden rounded-full bg-[#e8f0fc] border border-[#235fe7] py-5 text-[11px] font-black uppercase tracking-widest text-[#2862e8] transition-all hover:bg-white disabled:opacity-70 disabled:cursor-not-allowed"
+            >
+              <span className="relative z-10">{loading ? 'Sending...' : 'Send Request'}</span>
+              {loading ? (
+                <Loader2 size={18} className="relative z-10 animate-spin" />
+              ) : (
+                <ArrowRight size={18} className="relative z-10 transition-transform group-hover:translate-x-1" />
+              )}
               <span className="absolute inset-0 translate-x-[-120%] rounded-full bg-gradient-to-r from-white/0 via-white/40 to-white/0 transition-transform duration-700 group-hover:translate-x-[120%]" />
             </button>
           </form>

@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id        String   @id @default(cuid())
+  username  String   @unique
+  password  String
+  createdAt DateTime @default(now())
+}
+
+model Submission {
+  id          String   @id @default(cuid())
+  name        String
+  email       String
+  phone       String   @default("")
+  serviceType String
+  message     String   @default("")
+  source      String   // "hero" | "contact" | "inquiry"
+  createdAt   DateTime @default(now())
+}
+
+model Photo {
+  id        String   @id @default(cuid())
+  url       String
+  alt       String   @default("DSC Project")
+  height    String   @default("h-[300px] sm:h-[340px] lg:h-[380px]")
+  createdAt DateTime @default(now())
+}
+
+model Video {
+  id        String   @id @default(cuid())
+  title     String
+  thumbnail String
+  videoUrl  String
+  createdAt DateTime @default(now())
+}
+
+model Project {
+  id        String   @id @default(cuid())
+  title     String
+  category  String
+  image     String
+  createdAt DateTime @default(now())
+}
+
+model Blog {
+  id        String   @id @default(cuid())
+  title     String
+  excerpt   String
+  content   String
+  image     String
+  category  String
+  bgColor   String   @default("bg-[#E8F5E9]")
+  accent    String   @default("text-green-700")
+  author    String   @default("DCS Editorial")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
