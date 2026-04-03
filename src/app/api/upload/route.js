@@ -1,7 +1,6 @@
 import { isAuthenticated } from "@/lib/auth";
 import { NextResponse } from "next/server";
-import { writeFile, mkdir } from "fs/promises";
-import path from "path";
+import { supabase } from "@/lib/supabase";
 
 export async function POST(request) {
   const authed = await isAuthenticated();
@@ -21,22 +20,33 @@ export async function POST(request) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Create upload directory
-    const uploadDir = path.join(process.cwd(), "public", "uploads", folder);
-    await mkdir(uploadDir, { recursive: true });
-
     // Generate unique filename
-    const ext = path.extname(file.name);
-    const baseName = path.basename(file.name, ext).replace(/[^a-zA-Z0-9]/g, "_");
-    const uniqueName = `${baseName}_${Date.now()}${ext}`;
-    const filePath = path.join(uploadDir, uniqueName);
+    const ext = file.name.substring(file.name.lastIndexOf('.'));
+    const safeName = file.name.replace(/[^a-zA-Z0-9]/g, "_").substring(0, 15);
+    const uniqueName = `${safeName}_${Date.now()}${ext}`;
+    const filePath = `${folder}/${uniqueName}`;
 
-    await writeFile(filePath, buffer);
+    const { data, error } = await supabase.storage
+      .from("dcs-uploads")
+      .upload(filePath, buffer, {
+        contentType: file.type,
+        upsert: false,
+      });
 
-    const url = `/uploads/${folder}/${uniqueName}`;
-    return NextResponse.json({ url, name: uniqueName }, { status: 201 });
+    if (error) {
+      console.error("Supabase storage error:", error);
+      throw error;
+    }
+
+    // Get public URL
+    const { data: { publicUrl } } = supabase.storage
+      .from("dcs-uploads")
+      .getPublicUrl(filePath);
+
+    return NextResponse.json({ url: publicUrl, name: uniqueName }, { status: 201 });
   } catch (error) {
     console.error("Upload error:", error);
-    return NextResponse.json({ error: "Upload failed" }, { status: 500 });
+    return NextResponse.json({ error: "Upload failed: " + error.message }, { status: 500 });
   }
 }
+
