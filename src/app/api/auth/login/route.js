@@ -22,7 +22,7 @@ export async function POST(request) {
     if (!admin) {
       // Auto-create first admin if no admins exist
       const count = await prisma.admin.count();
-      if (count === 0) {
+      if (count === 0 && username === "admin@myapp" && password === "dcs_@safe123") {
         const hashed = await hashPassword(password);
         admin = await prisma.admin.create({
           data: { username, password: hashed },
