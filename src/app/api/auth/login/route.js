@@ -7,58 +7,59 @@ export const dynamic = 'force-dynamic';
 
 export async function POST(request) {
   try {
-    const { username, password } = await request.json();
+    const body = await request.json();
+    const { username, password } = body;
 
+    // 1. Basic validation
     if (!username || !password) {
-      return NextResponse.json(
-        { error: "Username and password are required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Missing fields" }, { status: 400 });
     }
 
-    // Find or create admin on first login
+    // 2. Find Admin
     let admin = await prisma.admin.findUnique({ where: { username } });
 
+    // 3. Auto-seed first admin (Only if DB is empty and credentials match)
     if (!admin) {
-      // Auto-create first admin if no admins exist
-      const count = await prisma.admin.count();
-      if (count === 0 && username === "admin@myapp" && password === "dcs_@safe123") {
+      const adminCount = await prisma.admin.count();
+      if (adminCount === 0 && 
+          username === process.env.INITIAL_ADMIN_USER && 
+          password === process.env.INITIAL_ADMIN_PASS) {
+        
         const hashed = await hashPassword(password);
         admin = await prisma.admin.create({
           data: { username, password: hashed },
         });
       } else {
-        return NextResponse.json(
-          { error: "Invalid credentials" },
-          { status: 401 }
-        );
+        // Generic error to prevent username enumeration
+        return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
       }
     }
 
+    // 4. Verify Password
     const isValid = await verifyPassword(password, admin.password);
     if (!isValid) {
-      return NextResponse.json(
-        { error: "Invalid credentials" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
 
+    // 5. Create Token & Set Cookie
     const token = signToken({ id: admin.id, username: admin.username });
-
     const cookieStore = await cookies();
+
     cookieStore.set("admin_token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 60 * 60 * 24 * 7, // 7 days
+      secure: process.env.NODE_ENV === "production", // Forces HTTPS on Vercel
+      sameSite: "strict", // More secure than 'lax' for admin panels
+      maxAge: 60 * 60 * 24 * 7,
       path: "/",
     });
 
-    return NextResponse.json({ success: true, username: admin.username });
+    return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Login error:", error);
+    // Do not log the full error/password to console in production
+    console.error("Auth Failure:", process.env.NODE_ENV === "development" ? error : "Internal Error");
+    
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "Authentication failed" }, 
       { status: 500 }
     );
   }
