@@ -1,6 +1,15 @@
 import { isAuthenticated } from "@/lib/auth";
 import { NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase";
+
+const BUCKET_NAME = process.env.NEXT_PUBLIC_STORAGE_BUCKET || "dcs_uploads";
+
+// --- Dynamic Constraints ---
+const PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp", "image/avif"];
+const VIDEO_TYPES = ["video/mp4", "video/webm", "video/quicktime"]; // quicktime = .mov
+
+const MAX_PHOTO_SIZE = 5 * 1024 * 1024;    // 5MB
+const MAX_VIDEO_SIZE = 50 * 1024 * 1024;   // 50MB (Adjust based on your Supabase tier)
 
 export async function POST(request) {
   const authed = await isAuthenticated();
@@ -11,37 +20,62 @@ export async function POST(request) {
   try {
     const formData = await request.formData();
     const file = formData.get("file");
-    const folder = formData.get("folder") || "general";
+    const folder = formData.get("folder") || "general"; // 'photos' or 'videos'
 
-    if (!file) {
-      return NextResponse.json({ error: "No file provided" }, { status: 400 });
+    if (!file || typeof file === "string") {
+      return NextResponse.json({ error: "Invalid file" }, { status: 400 });
     }
 
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+    // --- 1. Dynamic Validation Logic ---
+    const isVideo = file.type.startsWith("video/") || folder === "videos";
+    const allowedTypes = isVideo ? VIDEO_TYPES : PHOTO_TYPES;
+    const maxAllowedSize = isVideo ? MAX_VIDEO_SIZE : MAX_PHOTO_SIZE;
 
-    // Generate unique filename
-    const ext = file.name.substring(file.name.lastIndexOf('.'));
-    const safeName = file.name.replace(/[^a-zA-Z0-9]/g, "_").substring(0, 15);
-    const uniqueName = `${safeName}_${Date.now()}${ext}`;
-    const filePath = `${folder}/${uniqueName}`;
+    // Security: Check Size
+    if (file.size > maxAllowedSize) {
+      const sizeMb = maxAllowedSize / (1024 * 1024);
+      return NextResponse.json({ error: `File too large (Max ${sizeMb}MB)` }, { status: 400 });
+    }
 
-    const { data, error } = await supabase.storage
-      .from("dcs-uploads")
+    // Security: Check Type
+    if (!allowedTypes.includes(file.type)) {
+      return NextResponse.json({ error: `Unsupported file format: ${file.type}` }, { status: 400 });
+    }
+
+    // --- 2. Process File ---
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const ext = file.name.split(".").pop().toLowerCase();
+    const cleanName = file.name.split(".")[0].replace(/[^a-zA-Z0-9]/g, "_").substring(0, 15);
+    const fileName = `${cleanName}_${Date.now()}.${ext}`;
+    const filePath = `${folder}/${fileName}`;
+
+    // --- 3. Admin Upload (Bypassing RLS) ---
+    const { data, error: uploadError } = await supabaseAdmin.storage
+      .from(BUCKET_NAME)
       .upload(filePath, buffer, {
         contentType: file.type,
         upsert: false,
+        cacheControl: "3600",
       });
 
-    // Get public URL for Simple Mode
-    const { data: { publicUrl } } = supabase.storage
-      .from("dcs-uploads")
+    if (uploadError) {
+      console.error("Supabase Storage Error:", uploadError.message);
+      return NextResponse.json({ error: uploadError.message }, { status: 500 });
+    }
+
+    const { data: { publicUrl } } = supabaseAdmin.storage
+      .from(BUCKET_NAME)
       .getPublicUrl(filePath);
 
-    return NextResponse.json({ url: publicUrl, name: uniqueName }, { status: 201 });
+    return NextResponse.json({ 
+      url: publicUrl, 
+      name: fileName,
+      path: filePath,
+      type: isVideo ? 'video' : 'image' 
+    }, { status: 201 });
+
   } catch (error) {
-    console.error("Upload error:", error);
-    return NextResponse.json({ error: "Upload failed: " + error.message }, { status: 500 });
+    console.error("Upload Route Crash:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
-
