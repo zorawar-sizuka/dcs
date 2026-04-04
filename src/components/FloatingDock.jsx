@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react"; // Added useEffect
 import { motion, AnimatePresence } from "framer-motion";
-import { X, MessageSquareText } from "lucide-react";
+import { X, MessageSquareText, Headset } from "lucide-react";
 import InquiryModal from "@/components/BookingButton"; // Ensure path is correct
 
 export default function FloatingDock({ onOpenInquiry }) {
@@ -83,7 +83,7 @@ export default function FloatingDock({ onOpenInquiry }) {
             whileTap={{ scale: 0.95 }}
             className="relative flex items-center justify-center w-14 h-14 rounded-full shadow-2xl bg-blue-600 border-2 border-white/20 text-white"
           >
-            <MessageSquareText size={28} />
+            <Headset size={28} />
             <span className="absolute inset-0 rounded-full animate-ping bg-blue-400/50 duration-2000 pointer-events-none" />
           </motion.button>
         )}

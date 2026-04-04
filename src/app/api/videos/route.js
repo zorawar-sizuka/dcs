@@ -2,15 +2,28 @@ import prisma from "@/lib/prisma";
 import { isAuthenticated } from "@/lib/auth";
 import { NextResponse } from "next/server";
 
-// GET all videos (public)
+// --- GET: Fetch all videos (Public) ---
 export async function GET() {
-  const videos = await prisma.video.findMany({
-    orderBy: { createdAt: "desc" },
-  });
-  return NextResponse.json(videos);
+  try {
+    const videos = await prisma.video.findMany({
+      orderBy: { createdAt: "desc" },
+    });
+
+    // Ensure we always return an array, even if empty
+    return NextResponse.json(videos || []);
+  } catch (error) {
+    // This logs the error to your server console so you can see if Supabase is down
+    console.error("VIDEO_GET_ERROR:", error);
+    
+    // Return a clean error object so the frontend doesn't crash during .json()
+    return NextResponse.json(
+      { error: "Failed to fetch videos", details: error.message },
+      { status: 500 }
+    );
+  }
 }
 
-// POST new video (admin only)
+// --- POST: Create a video (Admin Only) ---
 export async function POST(request) {
   const authed = await isAuthenticated();
   if (!authed) {
@@ -38,7 +51,33 @@ export async function POST(request) {
 
     return NextResponse.json(video, { status: 201 });
   } catch (error) {
-    console.error("Video create error:", error);
-    return NextResponse.json({ error: "Failed to create" }, { status: 500 });
+    console.error("VIDEO_CREATE_ERROR:", error);
+    return NextResponse.json({ error: "Failed to create video" }, { status: 500 });
+  }
+}
+
+// --- DELETE: Remove a video (Admin Only) ---
+export async function DELETE(request) {
+  const authed = await isAuthenticated();
+  if (!authed) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get("id");
+
+    if (!id) {
+      return NextResponse.json({ error: "Video ID is required" }, { status: 400 });
+    }
+
+    await prisma.video.delete({
+      where: { id },
+    });
+
+    return NextResponse.json({ success: true, message: "Video deleted" });
+  } catch (error) {
+    console.error("VIDEO_DELETE_ERROR:", error);
+    return NextResponse.json({ error: "Delete failed" }, { status: 500 });
   }
 }

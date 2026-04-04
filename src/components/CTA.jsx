@@ -1,11 +1,14 @@
 // components/CTASection.jsx
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
-
-const CTASection = () => {
-  return (
+import InquiryModal from "@/components/BookingButton"; 
+const CTASection = () => { 
+  const [isOpen, setIsOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  return ( 
+    <>
     <section className="bg-[#f7f7f4] px-4 py-6  md:py-8">
       <div className="mx-auto max-w-[1440px]">
         <motion.div
@@ -64,8 +67,9 @@ const CTASection = () => {
 
             <div className="mt-8 lg:mt-0">
               <motion.button
-                whileHover={{ scale: 1.02 }}
-                className="group inline-flex items-center gap-3 rounded-full border border-black/10 bg-[#111111] px-6 py-3.5 text-sm font-bold text-white transition-all duration-300 hover:bg-[#A3993D]"
+                whileHover={{ scale: 1.02 }} 
+                onClick={() => { setIsOpen(false); setIsModalOpen(true); }}
+                className="group relative inline-flex items-center gap-3 overflow-hidden rounded-full border border-white/10 bg-gradient-to-br from-emerald-600 via-teal-700 to-blue-700 px-7 py-4 text-sm font-bold text-white shadow-[0_10px_20px_-10px_rgba(16,185,129,0.5)] transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_20px_40px_-15px_rgba(6,182,212,0.5)] active:scale-95"
               >
                 Start Your Project
                 <ArrowRight size={17} className="transition-transform duration-300 group-hover:translate-x-1" />
@@ -74,7 +78,10 @@ const CTASection = () => {
           </div>
         </motion.div>
       </div>
-    </section>
+    </section> 
+         {/* Renders the form above everything */}
+         <InquiryModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} /> 
+</>
   );
 };
 

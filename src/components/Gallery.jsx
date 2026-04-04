@@ -10,13 +10,21 @@ export const PhotoGallery = ({ onOpen }) => {
 
   useEffect(() => {
     fetch("/api/photos")
-      .then((r) => r.json())
+      .then((r) => {
+        // Check if the response is actually JSON
+        const contentType = r.headers.get("content-type");
+        if (!r.ok || !contentType || !contentType.includes("application/json")) {
+          throw new Error(`Expected JSON but got ${contentType} with status ${r.status}`);
+        }
+        return r.json();
+      })
       .then((data) => {
-        setImages(data);
+        setImages(Array.isArray(data) ? data : []);
         setLoading(false);
       })
       .catch((err) => {
-        console.error(err);
+        console.error("Detailed Fetch Error:", err.message);
+        setImages([]);
         setLoading(false);
       });
   }, []);
@@ -88,13 +96,23 @@ export const VideoGallery = ({ onOpen }) => {
 
   useEffect(() => {
     fetch("/api/videos")
-      .then((r) => r.json())
+      .then((r) => {
+        // Defensive check: If response is not OK or not JSON, don't try to parse it
+        if (!r.ok) throw new Error('Network response was not ok');
+        const contentType = r.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+          return []; // Return empty array if server sends back HTML error
+        }
+        return r.json();
+      })
       .then((data) => {
-        setVideos(data);
+        const finalData = Array.isArray(data) ? data : (data.videos || data.data || []);
+        setVideos(finalData);
         setLoading(false);
       })
       .catch((err) => {
-        console.error(err);
+        console.error("Video Gallery Error:", err);
+        setVideos([]); // Fallback to empty array
         setLoading(false);
       });
   }, []);

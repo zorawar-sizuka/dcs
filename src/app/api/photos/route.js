@@ -8,9 +8,17 @@ export async function GET() {
     const photos = await prisma.photo.findMany({
       orderBy: { createdAt: "desc" },
     });
-    return NextResponse.json(photos);
+    
+    // Safety check: if for some reason photos is null
+    return NextResponse.json(photos || []); 
   } catch (error) {
-    return NextResponse.json({ error: "Failed to fetch" }, { status: 500 });
+    // CRITICAL: Look at your terminal/console where the dev server is running
+    console.error("DATABASE_ERROR:", error); 
+    
+    return NextResponse.json(
+      { error: "Failed to fetch", details: error.message }, 
+      { status: 500 }
+    );
   }
 }
 
