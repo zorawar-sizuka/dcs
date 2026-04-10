@@ -1,5 +1,6 @@
 // Run: node src/lib/seed.js
-// Creates default admin user
+// Creates default admin user using environment variables
+// Set INITIAL_ADMIN_USER and INITIAL_ADMIN_PASS in .env before running
 
 const { PrismaClient } = require("@prisma/client");
 const bcrypt = require("bcryptjs");
@@ -7,20 +8,26 @@ const bcrypt = require("bcryptjs");
 const prisma = new PrismaClient();
 
 async function main() {
-  const hashedPassword = await bcrypt.hash("dcs_@safe123", 12);
+  const username = process.env.INITIAL_ADMIN_USER;
+  const password = process.env.INITIAL_ADMIN_PASS;
+
+  if (!username || !password) {
+    console.error("❌ Set INITIAL_ADMIN_USER and INITIAL_ADMIN_PASS in .env first");
+    process.exit(1);
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 12);
 
   const admin = await prisma.admin.upsert({
-    where: { username: "admin@myapp" },
+    where: { username },
     update: {},
     create: {
-      username: "admin@myapp",
+      username,
       password: hashedPassword,
     },
   });
 
   console.log("✅ Admin user created:", admin.username);
-  console.log("   Username: admin@myapp");
-  console.log("   Password: dcs_@safe123");
 }
 
 main()

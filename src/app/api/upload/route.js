@@ -3,6 +3,9 @@ import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase";
 import prisma from "@/lib/prisma";
 
+// Vercel serverless timeout (free tier = 10s max, Pro = 60s)
+export const maxDuration = 60;
+
 const BUCKET_NAME = process.env.NEXT_PUBLIC_STORAGE_BUCKET || "dcs_uploads";
 
 // --- Dynamic Constraints ---
