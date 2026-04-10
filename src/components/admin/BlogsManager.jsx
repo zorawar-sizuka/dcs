@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Upload, Trash2, Edit3, X, RefreshCw, Plus, BookOpen, ChevronDown } from "lucide-react";
+import { Upload, Trash2, Edit3, X, RefreshCw, Plus, BookOpen } from "lucide-react";
 import toast from "react-hot-toast";
 
 const colorOptions = [
@@ -76,41 +76,60 @@ export default function BlogsManager() {
 
     setUploading(true);
     try {
-      let imageUrl = editingId ? preview : null;
-      if (file) {
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("folder", "blogs");
-        const uploadRes = await fetch("/api/upload", { method: "POST", body: formData });
-        const data = await uploadRes.json();
-        imageUrl = data.url;
-      }
-
-      const blogData = {
+      const blogFields = {
         title, excerpt, content, category, author,
-        image: imageUrl,
         bgColor: colorOptions[colorIdx].bgColor,
         accent: colorOptions[colorIdx].accent,
       };
 
       if (editingId) {
+        // EDIT flow
+        let imageUrl = preview;
+
+        if (file) {
+          const formData = new FormData();
+          formData.append("file", file);
+          formData.append("folder", "blogs");
+          const uploadRes = await fetch("/api/upload", { method: "POST", body: formData });
+          const data = await uploadRes.json();
+          imageUrl = data.url;
+        }
+
         const res = await fetch(`/api/blogs/${editingId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(blogData),
+          body: JSON.stringify({ ...blogFields, image: imageUrl }),
         });
-        if (res.ok) toast.success("Blog updated!");
+
+        if (res.ok) {
+          const updated = await res.json();
+          toast.success("Blog updated!");
+          // Optimistic update
+          setBlogs((prev) => prev.map((b) => b.id === editingId ? updated : b));
+        }
       } else {
-        const res = await fetch("/api/blogs", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(blogData),
-        });
-        if (res.ok) toast.success("Blog created!");
+        // CREATE flow: combined upload + DB save
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("folder", "blogs");
+        formData.append("createRecord", "true");
+        formData.append("recordData", JSON.stringify({
+          model: "blog",
+          fields: blogFields,
+        }));
+
+        const uploadRes = await fetch("/api/upload", { method: "POST", body: formData });
+        const data = await uploadRes.json();
+
+        if (uploadRes.ok && data.record) {
+          toast.success("Blog created!");
+          setBlogs((prev) => [data.record, ...prev]);
+        } else {
+          toast.error(data.error || "Create failed");
+        }
       }
 
       resetForm();
-      fetchBlogs();
     } catch {
       toast.error("Operation failed");
     } finally {
@@ -120,10 +139,21 @@ export default function BlogsManager() {
 
   const handleDelete = async (id) => {
     if (!confirm("Delete this blog post?")) return;
+    
+    // Optimistic delete
+    const previousBlogs = blogs;
+    setBlogs((prev) => prev.filter((b) => b.id !== id));
+    
     try {
       const res = await fetch(`/api/blogs/${id}`, { method: "DELETE" });
-      if (res.ok) { toast.success("Blog deleted"); fetchBlogs(); }
+      if (res.ok) {
+        toast.success("Blog deleted");
+      } else {
+        setBlogs(previousBlogs);
+        toast.error("Delete failed");
+      }
     } catch {
+      setBlogs(previousBlogs);
       toast.error("Delete failed");
     }
   };

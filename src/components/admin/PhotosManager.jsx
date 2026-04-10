@@ -54,27 +54,29 @@ export default function PhotosManager() {
 
     setUploading(true);
     try {
-      // Upload file first
+      // Combined upload + DB save in one API call
       const formData = new FormData();
       formData.append("file", file);
       formData.append("folder", "photos");
+      formData.append("createRecord", "true");
+      formData.append("recordData", JSON.stringify({
+        model: "photo",
+        fields: { alt, height },
+      }));
+
       const uploadRes = await fetch("/api/upload", { method: "POST", body: formData });
-      const { url } = await uploadRes.json();
+      const data = await uploadRes.json();
 
-      // Create photo record
-      const res = await fetch("/api/photos", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url, alt, height }),
-      });
-
-      if (res.ok) {
+      if (uploadRes.ok && data.record) {
         toast.success("Photo added!");
+        // Optimistic update: add to local state instead of refetching
+        setPhotos((prev) => [data.record, ...prev]);
         setFile(null);
         setPreview(null);
         setAlt("DSC Project");
         setShowForm(false);
-        fetchPhotos();
+      } else {
+        toast.error(data.error || "Upload failed");
       }
     } catch {
       toast.error("Upload failed");
@@ -85,13 +87,22 @@ export default function PhotosManager() {
 
   const handleDelete = async (id) => {
     if (!confirm("Delete this photo?")) return;
+    
+    // Optimistic delete: remove from UI immediately
+    const previousPhotos = photos;
+    setPhotos((prev) => prev.filter((p) => p.id !== id));
+    
     try {
-      const res = await fetch(`/api/photos/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/photos?id=${id}`, { method: "DELETE" });
       if (res.ok) {
         toast.success("Photo deleted");
-        fetchPhotos();
+      } else {
+        // Rollback on failure
+        setPhotos(previousPhotos);
+        toast.error("Delete failed");
       }
     } catch {
+      setPhotos(previousPhotos);
       toast.error("Delete failed");
     }
   };

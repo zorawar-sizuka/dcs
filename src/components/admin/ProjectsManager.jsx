@@ -69,35 +69,54 @@ export default function ProjectsManager() {
 
     setUploading(true);
     try {
-      let imageUrl = editingId ? preview : null;
-
-      if (file) {
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("folder", "projects");
-        const uploadRes = await fetch("/api/upload", { method: "POST", body: formData });
-        const data = await uploadRes.json();
-        imageUrl = data.url;
-      }
-
       if (editingId) {
+        // EDIT flow: upload new image if changed, then update
+        let imageUrl = preview;
+
+        if (file) {
+          const formData = new FormData();
+          formData.append("file", file);
+          formData.append("folder", "projects");
+          const uploadRes = await fetch("/api/upload", { method: "POST", body: formData });
+          const data = await uploadRes.json();
+          imageUrl = data.url;
+        }
+
         const res = await fetch(`/api/projects/${editingId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ title, category, image: imageUrl }),
         });
-        if (res.ok) toast.success("Project updated!");
+        
+        if (res.ok) {
+          const updated = await res.json();
+          toast.success("Project updated!");
+          // Optimistic update
+          setProjects((prev) => prev.map((p) => p.id === editingId ? updated : p));
+        }
       } else {
-        const res = await fetch("/api/projects", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ title, category, image: imageUrl }),
-        });
-        if (res.ok) toast.success("Project created!");
+        // CREATE flow: combined upload + DB save in one call
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("folder", "projects");
+        formData.append("createRecord", "true");
+        formData.append("recordData", JSON.stringify({
+          model: "project",
+          fields: { title, category },
+        }));
+
+        const uploadRes = await fetch("/api/upload", { method: "POST", body: formData });
+        const data = await uploadRes.json();
+        
+        if (uploadRes.ok && data.record) {
+          toast.success("Project created!");
+          setProjects((prev) => [data.record, ...prev]);
+        } else {
+          toast.error(data.error || "Create failed");
+        }
       }
 
       resetForm();
-      fetchProjects();
     } catch {
       toast.error("Operation failed");
     } finally {
@@ -107,13 +126,21 @@ export default function ProjectsManager() {
 
   const handleDelete = async (id) => {
     if (!confirm("Delete this project?")) return;
+    
+    // Optimistic delete
+    const previousProjects = projects;
+    setProjects((prev) => prev.filter((p) => p.id !== id));
+    
     try {
       const res = await fetch(`/api/projects/${id}`, { method: "DELETE" });
       if (res.ok) {
         toast.success("Project deleted");
-        fetchProjects();
+      } else {
+        setProjects(previousProjects);
+        toast.error("Delete failed");
       }
     } catch {
+      setProjects(previousProjects);
       toast.error("Delete failed");
     }
   };

@@ -2,13 +2,13 @@
   "name": "dcs",
   "version": "0.1.0",
   "private": true,
-  "scripts": {
-    "dev": "next dev",
-    "build": "npx prisma generate && npx prisma db push --accept-data-loss && next build",
-    "start": "next start",
-    "lint": "eslint",
-    "postinstall": "npx prisma generate"
-  },
+ "scripts": {
+  "dev": "next dev",
+  "build": "next build",
+  "start": "next start",
+  "lint": "eslint",
+  "postinstall": "prisma generate"
+},
   "dependencies": {
     "@prisma/client": "^5.22.0",
     "@supabase/supabase-js": "^2.101.1",

@@ -1,5 +1,6 @@
 "use client";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, memo } from "react";
+import Image from "next/image";
 import { motion, useInView } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 
@@ -11,18 +12,18 @@ const statistics = [
   { value: "12", suffix: "+", label: "Global Awards", bgColor: "bg-[#E8F5E9]" },
 ];
 
-const CounterStat = ({ value, suffix = "", label, delay = 0, bgColor = "" }) => {
+const CounterStat = memo(({ value, suffix = "", label, delay = 0, bgColor = "" }) => {
   const [count, setCount] = useState(0);
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: "-10px" });
 
   useEffect(() => {
     if (!inView) return;
-    let start = 0;
     const end = parseInt(value, 10);
     const duration = 2000;
-    const stepTime = Math.max(12, Math.floor(duration / end));
+    const stepTime = Math.max(16, Math.floor(duration / end)); // 16ms min = 60fps cap
 
+    let start = 0;
     const timer = setInterval(() => {
       start += 1;
       setCount(start);
@@ -37,7 +38,8 @@ const CounterStat = ({ value, suffix = "", label, delay = 0, bgColor = "" }) => 
       ref={ref}
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
-      transition={{ delay, duration: 0.6 }}
+      viewport={{ once: true }}
+      transition={{ delay, duration: 0.5 }}
       className={`flex flex-col items-center justify-center p-6 rounded-[1.5rem] ${bgColor} border border-black/5 shadow-sm text-center`}
     >
       <div className="text-3xl md:text-4xl font-bold tracking-tighter text-black">
@@ -48,15 +50,18 @@ const CounterStat = ({ value, suffix = "", label, delay = 0, bgColor = "" }) => 
       </p>
     </motion.div>
   );
-};
+});
+CounterStat.displayName = "CounterStat";
 
-const RevolvingLabel = () => {
+const RevolvingLabel = memo(() => {
   return (
     <div className="absolute -top-12 -right-12 h-40 w-40 z-30 hidden md:block">
-      <motion.div
-        animate={{ rotate: 360 }}
-        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+      <div
         className="relative w-full h-full flex items-center justify-center p-2 rounded-full border border-black/5 bg-white/20 backdrop-blur-md"
+        style={{
+          animation: "spin-slow 20s linear infinite",
+          willChange: "transform",
+        }}
       >
         <svg viewBox="0 0 100 100" className="w-full h-full absolute inset-0 drop-shadow-sm">
           <path
@@ -73,14 +78,47 @@ const RevolvingLabel = () => {
         <div className="h-14 w-14 bg-[#235fe7] rounded-full flex items-center justify-center shadow-lg border-2 border-white transform rotate-[-45deg]">
           <ArrowUpRight className="text-white" size={24} strokeWidth={3} />
         </div>
-      </motion.div>
+      </div>
     </div>
   );
-};
+});
+RevolvingLabel.displayName = "RevolvingLabel";
+
+// Bento grid image component — uses next/image for optimization
+const BentoImage = memo(({ src, alt, className, delay = 0, initial }) => {
+  return (
+    <motion.div
+      initial={initial}
+      whileInView={{ opacity: 1, scale: 1, x: 0, y: 0 }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ delay, duration: 0.5, ease: "easeOut" }}
+      className={className}
+      style={{ willChange: "transform, opacity" }}
+    >
+      <Image
+        src={src}
+        alt={alt}
+        fill
+        quality={75}
+        sizes="(max-width: 768px) 50vw, 33vw"
+        className="object-cover transition-transform duration-700 group-hover:scale-105"
+      />
+    </motion.div>
+  );
+});
+BentoImage.displayName = "BentoImage";
 
 const AboutSection = () => {
   return (
     <section className="relative w-full bg-white px-6 py-32 font-poppins overflow-hidden">
+      {/* CSS animation instead of framer-motion for the revolving label */}
+      <style jsx global>{`
+        @keyframes spin-slow {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+      `}</style>
+
       <div className="mx-auto w-full max-w-[1400px]">
         <div className="grid grid-cols-1 items-start gap-20 lg:grid-cols-2 lg:gap-32">
           
@@ -89,7 +127,8 @@ const AboutSection = () => {
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
             >
               <div className="flex items-center gap-4 mb-8">
                 <div className="h-[2px] w-12 bg-[#235fe7]" />
@@ -130,43 +169,40 @@ const AboutSection = () => {
             <div className="grid grid-cols-6 grid-rows-6 gap-3 h-[500px] md:h-[650px]">
               
               {/* Item 1: Large Vertical */}
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
+              <BentoImage
+                src="/images/about2_dcs.jpg"
+                alt="Main"
+                delay={0}
+                initial={{ opacity: 0, scale: 0.95 }}
                 className="col-span-3 row-span-4 relative overflow-hidden rounded-[2.5rem] shadow-xl group border border-black/5"
-              >
-                <img src="/images/about2_dcs.jpg" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" alt="Main" />
-              </motion.div>
+              />
 
               {/* Item 2: Square Top Right */}
-              <motion.div 
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
+              <BentoImage
+                src="/images/about1_dcs.jpg"
+                alt="Process"
+                delay={0.15}
+                initial={{ opacity: 0, y: 20 }}
                 className="col-span-3 row-span-2 relative overflow-hidden rounded-[2.5rem] shadow-lg group border border-black/5"
-              >
-                <img src="/images/about1_dcs.jpg" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" alt="Process" />
-              </motion.div>
+              />
 
               {/* Item 3: Wide Bottom Right */}
-              <motion.div 
-                initial={{ opacity: 0, x: 30 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.4 }}
+              <BentoImage
+                src="/images/about3_dcs.jpg"
+                alt="Detail"
+                delay={0.25}
+                initial={{ opacity: 0, x: 20 }}
                 className="col-span-3 row-span-4 relative overflow-hidden rounded-[2.5rem] shadow-lg group border border-black/5"
-              >
-                <img src="/images/about3_dcs.jpg" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" alt="Detail" />
-              </motion.div>
+              />
 
               {/* Item 4: Bottom Left Visual */}
-              <motion.div 
-                initial={{ opacity: 0, y: -20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6 }}
+              <BentoImage
+                src="/images/about4_dcs.jpg"
+                alt="About 4"
+                delay={0.35}
+                initial={{ opacity: 0, y: -15 }}
                 className="col-span-3 row-span-2 relative overflow-hidden rounded-[2.5rem] shadow-lg group border border-black/5"
-              >
-                <img src="/images/about4_dcs.jpg" className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" alt="About 4" />
-              </motion.div>
+              />
 
             </div>
           </div>

@@ -9,6 +9,7 @@ export default function VideosManager() {
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState("");
   const [title, setTitle] = useState("");
   const [videoFile, setVideoFile] = useState(null);
   const [thumbFile, setThumbFile] = useState(null);
@@ -47,24 +48,33 @@ export default function VideosManager() {
 
     setUploading(true);
     try {
-      // Upload video
+      // Upload video + thumbnail IN PARALLEL (not sequentially)
+      setUploadProgress("Uploading files...");
+
       const videoForm = new FormData();
       videoForm.append("file", videoFile);
       videoForm.append("folder", "videos");
-      const videoRes = await fetch("/api/upload", { method: "POST", body: videoForm });
-      const { url: videoUrl } = await videoRes.json();
 
-      // Upload thumbnail if provided
-      let thumbnailUrl = "/images/thumbnail.avif";
+      const uploadPromises = [
+        fetch("/api/upload", { method: "POST", body: videoForm }).then(r => r.json()),
+      ];
+
       if (thumbFile) {
         const thumbForm = new FormData();
         thumbForm.append("file", thumbFile);
         thumbForm.append("folder", "thumbnails");
-        const thumbRes = await fetch("/api/upload", { method: "POST", body: thumbForm });
-        const thumbData = await thumbRes.json();
-        thumbnailUrl = thumbData.url;
+        uploadPromises.push(
+          fetch("/api/upload", { method: "POST", body: thumbForm }).then(r => r.json())
+        );
       }
 
+      // Wait for all uploads to complete simultaneously
+      const results = await Promise.all(uploadPromises);
+      const videoUrl = results[0].url;
+      const thumbnailUrl = results[1]?.url || "/images/thumbnail.avif";
+
+      // Now create the DB record
+      setUploadProgress("Saving...");
       const res = await fetch("/api/videos", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -72,30 +82,43 @@ export default function VideosManager() {
       });
 
       if (res.ok) {
+        const newVideo = await res.json();
         toast.success("Video added!");
+        // Optimistic update
+        setVideos((prev) => [newVideo, ...prev]);
         setTitle("");
         setVideoFile(null);
         setThumbFile(null);
         setThumbPreview(null);
         setShowForm(false);
-        fetchVideos();
+      } else {
+        toast.error("Failed to save video");
       }
     } catch {
       toast.error("Upload failed");
     } finally {
       setUploading(false);
+      setUploadProgress("");
     }
   };
 
   const handleDelete = async (id) => {
     if (!confirm("Delete this video?")) return;
+    
+    // Optimistic delete
+    const previousVideos = videos;
+    setVideos((prev) => prev.filter((v) => v.id !== id));
+    
     try {
-      const res = await fetch(`/api/videos/${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/videos?id=${id}`, { method: "DELETE" });
       if (res.ok) {
         toast.success("Video deleted");
-        fetchVideos();
+      } else {
+        setVideos(previousVideos);
+        toast.error("Delete failed");
       }
     } catch {
+      setVideos(previousVideos);
       toast.error("Delete failed");
     }
   };
@@ -165,7 +188,14 @@ export default function VideosManager() {
               </div>
 
               <button type="submit" disabled={uploading} className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#1A1A1A] py-3.5 text-sm font-bold text-white hover:bg-[#235fe7] transition-all disabled:opacity-50">
-                {uploading ? <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" /> : <><Upload size={16} /> Upload Video</>}
+                {uploading ? (
+                  <div className="flex items-center gap-2">
+                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+                    <span className="text-xs">{uploadProgress}</span>
+                  </div>
+                ) : (
+                  <><Upload size={16} /> Upload Video</>
+                )}
               </button>
             </form>
           </motion.div>

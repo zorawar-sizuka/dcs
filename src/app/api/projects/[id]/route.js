@@ -1,8 +1,6 @@
 import prisma from "@/lib/prisma";
 import { isAuthenticated } from "@/lib/auth";
 import { NextResponse } from "next/server";
-import { unlink } from "fs/promises";
-import path from "path";
 
 export async function PUT(request, { params }) {
   const authed = await isAuthenticated();
@@ -39,17 +37,7 @@ export async function DELETE(request, { params }) {
 
   try {
     const { id } = await params;
-    const project = await prisma.project.findUnique({ where: { id } });
-
-    if (!project) {
-      return NextResponse.json({ error: "Not found" }, { status: 404 });
-    }
-
-    if (project.image?.startsWith("/uploads/")) {
-      const filePath = path.join(process.cwd(), "public", project.image);
-      try { await unlink(filePath); } catch {}
-    }
-
+    // Direct delete — no need to findUnique first since images are on Supabase now
     await prisma.project.delete({ where: { id } });
     return NextResponse.json({ success: true });
   } catch (error) {

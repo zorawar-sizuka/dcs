@@ -1,6 +1,7 @@
 
 "use client";
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowRight, Calendar, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
@@ -79,6 +80,22 @@ export default function LandingHero() {
   return (
     <section className="relative h-screen w-full overflow-hidden bg-[#1A1A1A]">
       
+      {/* Preload ALL carousel images off-screen so transitions are instant */}
+      <div aria-hidden="true" className="absolute w-0 h-0 overflow-hidden">
+        {slides.map((slide, i) => (
+          <Image
+            key={`preload-${i}`}
+            src={slide.image}
+            alt=""
+            width={1920}
+            height={1080}
+            quality={85}
+            priority={i === 0}
+            sizes="100vw"
+          />
+        ))}
+      </div>
+
       {/* 1. Full Screen Background Carousel */}
       <div className="absolute inset-0 z-0">
         <AnimatePresence mode="popLayout">
@@ -90,14 +107,17 @@ export default function LandingHero() {
             transition={{ duration: 1.5, ease: "easeOut" }}
             className="absolute inset-0"
           >
-            <div
-              className="h-full w-full bg-cover bg-center"
-              style={{ backgroundImage: `url(${slides[current].image})` }}
-            >
-              {/* Dark Gradient Overlays for Readability */}
-              <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/20 to-transparent" />
-              {/* <div className="absolute inset-0 bg-black/10" /> */}
-            </div>
+            <Image
+              src={slides[current].image}
+              alt={slides[current].title}
+              fill
+              quality={85}
+              sizes="100vw"
+              priority={current === 0}
+              className="object-cover"
+            />
+            {/* Dark Gradient Overlays for Readability */}
+            <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-black/20 to-transparent" />
           </motion.div>
         </AnimatePresence>
       </div>
